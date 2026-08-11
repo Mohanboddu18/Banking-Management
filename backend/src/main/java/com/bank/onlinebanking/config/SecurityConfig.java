@@ -57,24 +57,30 @@ public class SecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/", "/favicon.ico", "/error").permitAll()
+                        // Angular SPA Static Assets & SPA Routes
+                        .requestMatchers(
+                                "/", "/index.html", "/favicon.ico", "/error", "/3rdpartylicenses.txt",
+                                "/assets/**", "/*.js", "/*.css", "/*.ico", "/*.txt", "/*.png", "/*.jpg", "/*.jpeg", "/*.svg", "/*.woff", "/*.woff2", "/*.ttf",
+                                "/auth", "/auth/**", "/customer", "/customer/**", "/employee", "/employee/**", "/manager", "/manager/**"
+                        ).permitAll()
+                        
+                        // Public Backend REST endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/**", "/actuator/health").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/vas/movies/cities", "/api/vas/movies/shows/**", "/api/vas/recharge/operators").permitAll()
                         
-                        // Manager endpoints
+                        // Manager REST endpoints
                         .requestMatchers("/api/manager/**").hasAnyAuthority("ROLE_MANAGER", "ROLE_ADMIN")
                         
-                        // Employee endpoints
+                        // Employee REST endpoints
                         .requestMatchers("/api/employee/**").hasAnyAuthority(
                                 "ROLE_MANAGER", "ROLE_EMPLOYEE_ASST_MANAGER", "ROLE_EMPLOYEE_CASHIER",
                                 "ROLE_EMPLOYEE_LOAN_OFFICER", "ROLE_EMPLOYEE_CUSTOMER_SERVICE", "ROLE_EMPLOYEE_OPERATIONS", "ROLE_ADMIN"
                         )
                         
-                        // Customer & Authenticated endpoints
+                        // Customer & Authenticated REST endpoints
                         .anyRequest().authenticated()
                 );
 

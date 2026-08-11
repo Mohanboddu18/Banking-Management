@@ -110,6 +110,8 @@ public class VASService {
                 .transactionType(qrType)
                 .amount(req.getAmount())
                 .balanceAfter(customerNewBalance)
+                .senderBalanceAfter(customerNewBalance)
+                .receiverBalanceAfter(merchantNewBalance)
                 .description(desc)
                 .status(TransactionStatus.SUCCESS)
                 .build();
@@ -186,6 +188,7 @@ public class VASService {
                 .transactionType(rechargeType)
                 .amount(req.getAmount())
                 .balanceAfter(newBalance)
+                .senderBalanceAfter(newBalance)
                 .description("Mobile Recharge for " + req.getMobileNumber() + " (" + operator.getName() + " - " + req.getPlanName() + ")")
                 .status(TransactionStatus.SUCCESS)
                 .build();
@@ -351,6 +354,7 @@ public class VASService {
                 .transactionType(movieType)
                 .amount(totalAmount)
                 .balanceAfter(newBalance)
+                .senderBalanceAfter(newBalance)
                 .description("Movie Booking for " + show.getMovie().getTitle() + " at " + show.getScreen().getTheatre().getName() + " (Seats: " + seatNumbersStr + ")")
                 .status(TransactionStatus.SUCCESS)
                 .build();

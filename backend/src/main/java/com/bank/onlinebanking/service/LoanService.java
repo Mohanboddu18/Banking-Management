@@ -190,6 +190,7 @@ public class LoanService {
                         .transactionType(disburseType)
                         .amount(approvedAmount)
                         .balanceAfter(lockedAcc.getBalance())
+                        .receiverBalanceAfter(lockedAcc.getBalance())
                         .description("Loan Sanction & Disbursement: " + loan.getLoanAccountNumber())
                         .status(TransactionStatus.SUCCESS)
                         .build();
@@ -358,29 +359,30 @@ public class LoanService {
         // Validate PIN
         authService.validateCustomerPin(customer, req.getTransactionPin());
 
-        // Validate Balance
         if (account.getBalance().compareTo(totalRemainingAmount) < 0) {
-            throw new InsufficientBalanceException("Insufficient balance to pay full loan amount of ₹" + totalRemainingAmount + ". Available balance: ₹" + account.getBalance());
+            throw new InsufficientBalanceException("Insufficient account balance to foreclose loan! Required: ₹" + totalRemainingAmount + ", Available: ₹" + account.getBalance());
         }
 
-        // Deduct balance
-        BigDecimal newBalance = account.getBalance().subtract(totalRemainingAmount);
-        account.setBalance(newBalance);
-        account.setLedgerBalance(account.getLedgerBalance().subtract(totalRemainingAmount));
-        accountRepository.save(account);
+        // Lock and debit account
+        Account lockedAcc = accountRepository.findByIdForUpdate(account.getId())
+                .orElseThrow(() -> new AccountNotFoundException("Account locking failed."));
 
-        String txnRef = referenceGenerator.generateTransactionRef();
+        BigDecimal newBalance = lockedAcc.getBalance().subtract(totalRemainingAmount);
+        lockedAcc.setBalance(newBalance);
+        lockedAcc.setLedgerBalance(lockedAcc.getLedgerBalance().subtract(totalRemainingAmount));
+        accountRepository.save(lockedAcc);
+
+        // Mark all repayments as PAID
         LocalDateTime now = LocalDateTime.now();
+        String txnRef = referenceGenerator.generateTransactionRef();
 
-        // Mark ALL pending repayments as PAID
-        for (LoanRepayment r : pendingRepayments) {
-            r.setStatus(RepaymentStatus.PAID);
-            r.setPaidDate(now);
-            r.setTransactionRef(txnRef);
-            loanRepaymentRepository.save(r);
+        for (LoanRepayment rep : pendingRepayments) {
+            rep.setStatus(RepaymentStatus.PAID);
+            rep.setPaidDate(now);
+            rep.setTransactionRef(txnRef);
+            loanRepaymentRepository.save(rep);
         }
 
-        // Fully close the loan
         loan.setRemainingEmis(0);
         loan.setRemainingPrincipal(BigDecimal.ZERO);
         loan.setStatus(LoanStatus.CLOSED);
@@ -396,6 +398,7 @@ public class LoanService {
                 .transactionType(emiType)
                 .amount(totalRemainingAmount)
                 .balanceAfter(newBalance)
+                .senderBalanceAfter(newBalance)
                 .description("Full Loan Foreclosure & Settlement (" + pendingRepayments.size() + " EMIs) for Loan " + loan.getLoanAccountNumber())
                 .status(TransactionStatus.SUCCESS)
                 .build();

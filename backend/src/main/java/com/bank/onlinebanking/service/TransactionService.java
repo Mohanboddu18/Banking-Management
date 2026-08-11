@@ -70,6 +70,7 @@ public class TransactionService {
                 .transactionType(txnType)
                 .amount(req.getAmount())
                 .balanceAfter(newBalance)
+                .receiverBalanceAfter(newBalance)
                 .description(desc)
                 .status(TransactionStatus.SUCCESS)
                 .build();
@@ -124,6 +125,7 @@ public class TransactionService {
                 .transactionType(txnType)
                 .amount(req.getAmount())
                 .balanceAfter(newBalance)
+                .senderBalanceAfter(newBalance)
                 .description("Cash Withdrawal")
                 .status(TransactionStatus.SUCCESS)
                 .build();
@@ -170,6 +172,7 @@ public class TransactionService {
                 .transactionType(txnType)
                 .amount(req.getAmount())
                 .balanceAfter(newBalance)
+                .senderBalanceAfter(newBalance)
                 .description(req.getDescription() != null && !req.getDescription().isEmpty() ? req.getDescription() : "Cashier Counter Cash Withdrawal")
                 .status(TransactionStatus.SUCCESS)
                 .build();
@@ -303,11 +306,21 @@ public class TransactionService {
 
     public TransactionResponse mapToTransactionResponse(Transaction t, String focusAccountNumber) {
         String entryType = "UNKNOWN";
+        BigDecimal balanceAfterForFocus = t.getBalanceAfter();
+
         if (focusAccountNumber != null) {
             if (t.getFromAccount() != null && focusAccountNumber.equals(t.getFromAccount().getAccountNumber())) {
                 entryType = "DEBIT";
+                balanceAfterForFocus = t.getSenderBalanceAfter() != null ? t.getSenderBalanceAfter() : t.getBalanceAfter();
             } else if (t.getToAccount() != null && focusAccountNumber.equals(t.getToAccount().getAccountNumber())) {
                 entryType = "CREDIT";
+                if (t.getReceiverBalanceAfter() != null) {
+                    balanceAfterForFocus = t.getReceiverBalanceAfter();
+                } else if (t.getFromAccount() == null) {
+                    balanceAfterForFocus = t.getBalanceAfter();
+                } else if (t.getToAccount() != null && t.getToAccount().getBalance() != null) {
+                    balanceAfterForFocus = t.getToAccount().getBalance();
+                }
             }
         } else {
             entryType = t.getFromAccount() != null ? "DEBIT" : "CREDIT";
@@ -317,13 +330,13 @@ public class TransactionService {
                 .id(t.getId())
                 .transactionRef(t.getTransactionRef())
                 .fromAccountNumber(t.getFromAccount() != null ? t.getFromAccount().getAccountNumber() : null)
-                .fromCustomerName(t.getFromAccount() != null ? t.getFromAccount().getCustomer().getFullName() : null)
+                .fromCustomerName(t.getFromAccount() != null && t.getFromAccount().getCustomer() != null ? t.getFromAccount().getCustomer().getFullName() : null)
                 .toAccountNumber(t.getToAccount() != null ? t.getToAccount().getAccountNumber() : null)
-                .toCustomerName(t.getToAccount() != null ? t.getToAccount().getCustomer().getFullName() : null)
+                .toCustomerName(t.getToAccount() != null && t.getToAccount().getCustomer() != null ? t.getToAccount().getCustomer().getFullName() : null)
                 .transactionType(t.getTransactionType().getCode())
                 .transactionTypeName(t.getTransactionType().getName())
                 .amount(t.getAmount())
-                .balanceAfter(t.getBalanceAfter())
+                .balanceAfter(balanceAfterForFocus)
                 .description(t.getDescription())
                 .status(t.getStatus().name())
                 .entryType(entryType)

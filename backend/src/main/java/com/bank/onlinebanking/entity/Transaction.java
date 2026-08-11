@@ -50,6 +50,12 @@ public class Transaction {
     @Column(precision = 15, scale = 2)
     private BigDecimal balanceAfter;
 
+    @Column(precision = 15, scale = 2)
+    private BigDecimal senderBalanceAfter;
+
+    @Column(precision = 15, scale = 2)
+    private BigDecimal receiverBalanceAfter;
+
     @Column(length = 255)
     private String description;
 

@@ -467,6 +467,7 @@ public class DataInitializer implements CommandLineRunner {
                     .transactionType(txnTypes.get("DEPOSIT"))
                     .amount(BigDecimal.valueOf(50000.00))
                     .balanceAfter(BigDecimal.valueOf(50000.00))
+                    .receiverBalanceAfter(BigDecimal.valueOf(50000.00))
                     .description("Monthly Salary Credit")
                     .status(TransactionStatus.SUCCESS)
                     .build();
@@ -479,6 +480,8 @@ public class DataInitializer implements CommandLineRunner {
                     .transactionType(txnTypes.get("P2P_TRANSFER"))
                     .amount(BigDecimal.valueOf(5000.00))
                     .balanceAfter(BigDecimal.valueOf(45000.00))
+                    .senderBalanceAfter(BigDecimal.valueOf(45000.00))
+                    .receiverBalanceAfter(BigDecimal.valueOf(45000.00))
                     .description("Transfer to Priya Sharma")
                     .status(TransactionStatus.SUCCESS)
                     .build();
@@ -491,6 +494,8 @@ public class DataInitializer implements CommandLineRunner {
                     .transactionType(txnTypes.get("QR_PAYMENT"))
                     .amount(BigDecimal.valueOf(850.00))
                     .balanceAfter(BigDecimal.valueOf(44150.00))
+                    .senderBalanceAfter(BigDecimal.valueOf(44150.00))
+                    .receiverBalanceAfter(BigDecimal.valueOf(850.00))
                     .description("Paid to ABC Restaurant & Bar")
                     .status(TransactionStatus.SUCCESS)
                     .build();

@@ -110,6 +110,8 @@ public class TransferService {
                 .transactionType(txnType)
                 .amount(req.getAmount())
                 .balanceAfter(senderNewBalance)
+                .senderBalanceAfter(senderNewBalance)
+                .receiverBalanceAfter(receiverNewBalance)
                 .description(desc)
                 .status(TransactionStatus.SUCCESS)
                 .idempotencyKey(idempotencyKey)

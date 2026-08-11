@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # =========================================================================
+  # MySQL Database Service
+  # =========================================================================
+  mysql-db:
+    image: mysql:8.0
+    container_name: godavari-bank-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mohan
+      MYSQL_DATABASE: banking_management
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pmohan"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bank-network
+
+  # =========================================================================
+  # Spring Boot Backend API Service
+  # =========================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: godavari-bank-backend
+    restart: on-failure
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    environment:
+      PORT: 8080
+      DB_URL: jdbc:mysql://mysql-db:3306/banking_management?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: mohan
+      JWT_SECRET: BankingManagementSuperSecretKey2026GodavariBankSimulationSecureToken9876543210987654321
+      HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    networks:
+      - bank-network
+
+volumes:
+  mysql_data:
+
+networks:
+  bank-network:
+    driver: bridge

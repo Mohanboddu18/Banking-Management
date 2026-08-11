@@ -1,0 +1,27 @@
+services:
+  # =========================================================================
+  # Godavari Bank Spring Boot Backend Web Service on Render
+  # =========================================================================
+  - type: web
+    name: godavari-bank-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DB_URL
+        sync: false # Set in Render Dashboard from your cloud MySQL (Aiven / Railway / Clever Cloud)
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: HIBERNATE_DDL_AUTO
+        value: update
+      - key: SQL_INIT_MODE
+        value: always

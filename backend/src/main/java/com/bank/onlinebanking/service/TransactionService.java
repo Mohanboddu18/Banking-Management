@@ -1,0 +1,333 @@
+package com.bank.onlinebanking.service;
+
+import com.bank.onlinebanking.dto.common.PagedResponse;
+import com.bank.onlinebanking.dto.transaction.*;
+import com.bank.onlinebanking.entity.*;
+import com.bank.onlinebanking.entity.enums.AccountStatus;
+import com.bank.onlinebanking.entity.enums.NotificationType;
+import com.bank.onlinebanking.entity.enums.TransactionStatus;
+import com.bank.onlinebanking.exception.AccountNotFoundException;
+import com.bank.onlinebanking.exception.AccountSuspendedException;
+import com.bank.onlinebanking.exception.InsufficientBalanceException;
+import com.bank.onlinebanking.repository.*;
+import com.bank.onlinebanking.util.CsvStatementGenerator;
+import com.bank.onlinebanking.util.PdfStatementGenerator;
+import com.bank.onlinebanking.util.ReferenceGenerator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class TransactionService {
+
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
+    private final TransactionTypeRepository transactionTypeRepository;
+    private final AuthService authService;
+    private final ReferenceGenerator referenceGenerator;
+    private final NotificationService notificationService;
+    private final AuditLogService auditLogService;
+    private final PdfStatementGenerator pdfStatementGenerator;
+    private final CsvStatementGenerator csvStatementGenerator;
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public TransactionResponse deposit(DepositRequest req, String username, String ipAddress) {
+        Account account = accountRepository.findByAccountNumberForUpdate(req.getAccountNumber())
+                .orElseThrow(() -> new AccountNotFoundException("Account not found: " + req.getAccountNumber()));
+
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new AccountSuspendedException("Cannot deposit to account with status: " + account.getStatus());
+        }
+
+        BigDecimal oldBalance = account.getBalance();
+        BigDecimal newBalance = oldBalance.add(req.getAmount());
+        account.setBalance(newBalance);
+        account.setLedgerBalance(account.getLedgerBalance().add(req.getAmount()));
+        accountRepository.save(account);
+
+        TransactionType txnType = transactionTypeRepository.findByCode("DEPOSIT")
+                .orElseGet(() -> transactionTypeRepository.save(TransactionType.builder().code("DEPOSIT").name("Cash / Direct Deposit").build()));
+
+        String txnRef = referenceGenerator.generateTransactionRef();
+        String desc = req.getDescription() != null && !req.getDescription().isEmpty() ? req.getDescription() : "Cash Deposit";
+
+        Transaction txn = Transaction.builder()
+                .transactionRef(txnRef)
+                .toAccount(account)
+                .transactionType(txnType)
+                .amount(req.getAmount())
+                .balanceAfter(newBalance)
+                .description(desc)
+                .status(TransactionStatus.SUCCESS)
+                .build();
+        txn = transactionRepository.save(txn);
+
+        auditLogService.logAction(account.getCustomer().getUser().getId(), username != null ? username : "CASHIER",
+                "TRANSACTION", "DEPOSIT", "Account", account.getAccountNumber(), ipAddress, "SUCCESS",
+                "Deposited ₹" + req.getAmount() + " into " + account.getAccountNumber() + ". New Balance: ₹" + newBalance);
+
+        notificationService.createNotification(account.getCustomer(), "Account Credited",
+                "₹" + req.getAmount() + " has been credited to your account " + account.getAccountNumber() + ". Available Balance: ₹" + newBalance + " (Ref: " + txnRef + ")",
+                NotificationType.DEPOSIT);
+
+        return mapToTransactionResponse(txn, account.getAccountNumber());
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public TransactionResponse withdraw(WithdrawRequest req, String username, String ipAddress) {
+        Account account = accountRepository.findByAccountNumberForUpdate(req.getAccountNumber())
+                .orElseThrow(() -> new AccountNotFoundException("Account not found: " + req.getAccountNumber()));
+
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new AccountSuspendedException("Cannot withdraw from account with status: " + account.getStatus());
+        }
+
+        Customer customer = account.getCustomer();
+        if (username != null && !customer.getUser().getUsername().equals(username)) {
+            throw new AccountSuspendedException("Access Denied: You do not own this account");
+        }
+
+        // Validate Transaction PIN
+        authService.validateCustomerPin(customer, req.getTransactionPin());
+
+        // Check Balance
+        if (account.getBalance().compareTo(req.getAmount()) < 0) {
+            throw new InsufficientBalanceException("Insufficient balance! Available balance is ₹" + account.getBalance());
+        }
+
+        BigDecimal oldBalance = account.getBalance();
+        BigDecimal newBalance = oldBalance.subtract(req.getAmount());
+        account.setBalance(newBalance);
+        account.setLedgerBalance(account.getLedgerBalance().subtract(req.getAmount()));
+        accountRepository.save(account);
+
+        TransactionType txnType = transactionTypeRepository.findByCode("WITHDRAWAL")
+                .orElseGet(() -> transactionTypeRepository.save(TransactionType.builder().code("WITHDRAWAL").name("Cash / ATM Withdrawal").build()));
+
+        String txnRef = referenceGenerator.generateTransactionRef();
+        Transaction txn = Transaction.builder()
+                .transactionRef(txnRef)
+                .fromAccount(account)
+                .transactionType(txnType)
+                .amount(req.getAmount())
+                .balanceAfter(newBalance)
+                .description("Cash Withdrawal")
+                .status(TransactionStatus.SUCCESS)
+                .build();
+        txn = transactionRepository.save(txn);
+
+        auditLogService.logAction(customer.getUser().getId(), username,
+                "ROLE_CUSTOMER", "WITHDRAWAL", "Account", account.getAccountNumber(), ipAddress, "SUCCESS",
+                "Withdrawn ₹" + req.getAmount() + " from " + account.getAccountNumber() + ". Balance After: ₹" + newBalance);
+
+        notificationService.createNotification(customer, "Account Debited",
+                "₹" + req.getAmount() + " has been debited from your account " + account.getAccountNumber() + ". Available Balance: ₹" + newBalance + " (Ref: " + txnRef + ")",
+                NotificationType.WITHDRAWAL);
+
+        return mapToTransactionResponse(txn, account.getAccountNumber());
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public TransactionResponse cashierWithdraw(WithdrawRequest req, String cashierUsername, String ipAddress) {
+        Account account = accountRepository.findByAccountNumberForUpdate(req.getAccountNumber())
+                .orElseThrow(() -> new AccountNotFoundException("Account not found: " + req.getAccountNumber()));
+
+        if (account.getStatus() != AccountStatus.ACTIVE) {
+            throw new AccountSuspendedException("Cannot withdraw from account with status: " + account.getStatus());
+        }
+
+        // Check Balance
+        if (account.getBalance().compareTo(req.getAmount()) < 0) {
+            throw new InsufficientBalanceException("Insufficient balance! Available balance is ₹" + account.getBalance());
+        }
+
+        BigDecimal oldBalance = account.getBalance();
+        BigDecimal newBalance = oldBalance.subtract(req.getAmount());
+        account.setBalance(newBalance);
+        account.setLedgerBalance(account.getLedgerBalance().subtract(req.getAmount()));
+        accountRepository.save(account);
+
+        TransactionType txnType = transactionTypeRepository.findByCode("WITHDRAWAL")
+                .orElseGet(() -> transactionTypeRepository.save(TransactionType.builder().code("WITHDRAWAL").name("Cash / ATM Withdrawal").build()));
+
+        String txnRef = referenceGenerator.generateTransactionRef();
+        Transaction txn = Transaction.builder()
+                .transactionRef(txnRef)
+                .fromAccount(account)
+                .transactionType(txnType)
+                .amount(req.getAmount())
+                .balanceAfter(newBalance)
+                .description(req.getDescription() != null && !req.getDescription().isEmpty() ? req.getDescription() : "Cashier Counter Cash Withdrawal")
+                .status(TransactionStatus.SUCCESS)
+                .build();
+        txn = transactionRepository.save(txn);
+
+        Customer customer = account.getCustomer();
+        auditLogService.logAction(customer.getUser().getId(), cashierUsername,
+                "ROLE_EMPLOYEE_CASHIER", "CASHIER_WITHDRAWAL", "Account", account.getAccountNumber(), ipAddress, "SUCCESS",
+                "Teller " + cashierUsername + " dispensed cash ₹" + req.getAmount() + " from " + account.getAccountNumber() + ". Balance After: ₹" + newBalance);
+
+        notificationService.createNotification(customer, "Counter Cash Withdrawal",
+                "₹" + req.getAmount() + " was withdrawn at the Branch Cashier Counter from " + account.getAccountNumber() + ". Balance: ₹" + newBalance + " (Ref: " + txnRef + ")",
+                NotificationType.WITHDRAWAL);
+
+        return mapToTransactionResponse(txn, account.getAccountNumber());
+    }
+
+    @Transactional(readOnly = true)
+    public List<TransactionResponse> getRecentTransactions(String accountNumber) {
+        Pageable pageable = PageRequest.of(0, 10);
+        return transactionRepository.findRecentByAccountNumber(accountNumber, pageable).stream()
+                .map(t -> mapToTransactionResponse(t, accountNumber))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PagedResponse<TransactionResponse> getFilteredTransactions(String username, TransactionFilterRequest filter) {
+        int page = filter.getPage() != null ? filter.getPage() : 0;
+        int size = filter.getSize() != null ? filter.getSize() : 20;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<Transaction> pageResult = transactionRepository.findAllByCustomerUsername(username, pageable);
+
+        List<TransactionResponse> responses = pageResult.getContent().stream()
+                .map(t -> mapToTransactionResponse(t, filter.getAccountNumber()))
+                .collect(Collectors.toList());
+
+        return PagedResponse.<TransactionResponse>builder()
+                .content(responses)
+                .page(pageResult.getNumber())
+                .size(pageResult.getSize())
+                .totalElements(pageResult.getTotalElements())
+                .totalPages(pageResult.getTotalPages())
+                .last(pageResult.isLast())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public StatementSummaryResponse getStatementData(String accountNumber, String timeframe, LocalDate customStart, LocalDate customEnd, String username) {
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found: " + accountNumber));
+
+        if (username != null && !account.getCustomer().getUser().getUsername().equals(username)) {
+            throw new AccountSuspendedException("Access Denied: You do not own this account");
+        }
+
+        LocalDate endDate = customEnd != null ? customEnd : LocalDate.now();
+        LocalDate startDate = customStart != null ? customStart : endDate.minusMonths(6);
+
+        if (timeframe != null && !timeframe.equalsIgnoreCase("CUSTOM")) {
+            switch (timeframe.toUpperCase()) {
+                case "7_DAYS":
+                    startDate = endDate.minusDays(7);
+                    break;
+                case "30_DAYS":
+                    startDate = endDate.minusDays(30);
+                    break;
+                case "3_MONTHS":
+                    startDate = endDate.minusMonths(3);
+                    break;
+                case "6_MONTHS":
+                default:
+                    startDate = endDate.minusMonths(6);
+                    break;
+            }
+        }
+
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+
+        List<Transaction> transactions = transactionRepository.findStatementTransactions(accountNumber, startDateTime, endDateTime);
+
+        BigDecimal totalDebits = BigDecimal.ZERO;
+        BigDecimal totalCredits = BigDecimal.ZERO;
+
+        List<TransactionResponse> txResponses = transactions.stream()
+                .map(t -> mapToTransactionResponse(t, accountNumber))
+                .collect(Collectors.toList());
+
+        for (TransactionResponse r : txResponses) {
+            if ("DEBIT".equalsIgnoreCase(r.getEntryType())) {
+                totalDebits = totalDebits.add(r.getAmount());
+            } else {
+                totalCredits = totalCredits.add(r.getAmount());
+            }
+        }
+
+        // Opening balance calculation approx
+        BigDecimal closingBalance = account.getBalance();
+        BigDecimal openingBalance = closingBalance.subtract(totalCredits).add(totalDebits);
+
+        return StatementSummaryResponse.builder()
+                .bankName("Godavari Bank (Simulated)")
+                .branchName(account.getBranchName())
+                .ifscCode(account.getIfscCode())
+                .customerName(account.getCustomer().getFullName())
+                .customerId(account.getCustomer().getCustomerId())
+                .accountNumber(account.getAccountNumber())
+                .accountType(account.getAccountType().getName())
+                .address(account.getCustomer().getAddress() + ", " + account.getCustomer().getCity() + ", " + account.getCustomer().getPincode())
+                .startDate(startDate)
+                .endDate(endDate)
+                .openingBalance(openingBalance)
+                .closingBalance(closingBalance)
+                .totalDebits(totalDebits)
+                .totalCredits(totalCredits)
+                .transactionCount(transactions.size())
+                .transactions(txResponses)
+                .build();
+    }
+
+    public byte[] exportStatementPdf(String accountNumber, String timeframe, LocalDate customStart, LocalDate customEnd, String username) {
+        StatementSummaryResponse statement = getStatementData(accountNumber, timeframe, customStart, customEnd, username);
+        return pdfStatementGenerator.generateStatementPdf(statement);
+    }
+
+    public byte[] exportStatementCsv(String accountNumber, String timeframe, LocalDate customStart, LocalDate customEnd, String username) {
+        StatementSummaryResponse statement = getStatementData(accountNumber, timeframe, customStart, customEnd, username);
+        return csvStatementGenerator.generateStatementCsv(statement);
+    }
+
+    public TransactionResponse mapToTransactionResponse(Transaction t, String focusAccountNumber) {
+        String entryType = "UNKNOWN";
+        if (focusAccountNumber != null) {
+            if (t.getFromAccount() != null && focusAccountNumber.equals(t.getFromAccount().getAccountNumber())) {
+                entryType = "DEBIT";
+            } else if (t.getToAccount() != null && focusAccountNumber.equals(t.getToAccount().getAccountNumber())) {
+                entryType = "CREDIT";
+            }
+        } else {
+            entryType = t.getFromAccount() != null ? "DEBIT" : "CREDIT";
+        }
+
+        return TransactionResponse.builder()
+                .id(t.getId())
+                .transactionRef(t.getTransactionRef())
+                .fromAccountNumber(t.getFromAccount() != null ? t.getFromAccount().getAccountNumber() : null)
+                .fromCustomerName(t.getFromAccount() != null ? t.getFromAccount().getCustomer().getFullName() : null)
+                .toAccountNumber(t.getToAccount() != null ? t.getToAccount().getAccountNumber() : null)
+                .toCustomerName(t.getToAccount() != null ? t.getToAccount().getCustomer().getFullName() : null)
+                .transactionType(t.getTransactionType().getCode())
+                .transactionTypeName(t.getTransactionType().getName())
+                .amount(t.getAmount())
+                .balanceAfter(t.getBalanceAfter())
+                .description(t.getDescription())
+                .status(t.getStatus().name())
+                .entryType(entryType)
+                .createdAt(t.getCreatedAt())
+                .build();
+    }
+}

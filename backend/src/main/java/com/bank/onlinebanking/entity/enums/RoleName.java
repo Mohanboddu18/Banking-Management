@@ -1,0 +1,12 @@
+package com.bank.onlinebanking.entity.enums;
+
+public enum RoleName {
+    ROLE_CUSTOMER,
+    ROLE_MANAGER,
+    ROLE_EMPLOYEE_ASST_MANAGER,
+    ROLE_EMPLOYEE_CASHIER,
+    ROLE_EMPLOYEE_LOAN_OFFICER,
+    ROLE_EMPLOYEE_CUSTOMER_SERVICE,
+    ROLE_EMPLOYEE_OPERATIONS,
+    ROLE_ADMIN
+}

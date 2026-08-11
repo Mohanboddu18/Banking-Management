@@ -5,9 +5,9 @@ spring:
   application:
     name: online-banking
   datasource:
-    url: ${DB_URL:${SPRING_DATASOURCE_URL:jdbc:mysql://mysql-2b7feb4e-mohanboddu18-d9b5.g.aivencloud.com:20198/defaultdb?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC}}
-    username: ${DB_USERNAME:${SPRING_DATASOURCE_USERNAME:avnadmin}}
-    password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:}}
+    url: ${DB_URL:${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/banking_management?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}}
+    username: ${DB_USERNAME:${SPRING_DATASOURCE_USERNAME:root}}
+    password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:mohan}}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: ${DB_POOL_MAX:10}
@@ -19,9 +19,7 @@ spring:
       ddl-auto: ${HIBERNATE_DDL_AUTO:update}
     show-sql: false
     properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-        format_sql: true
+      format_sql: true
   sql:
     init:
       mode: ${SQL_INIT_MODE:always}

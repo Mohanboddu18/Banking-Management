@@ -8,17 +8,17 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     plan: free
-    region: oregon
+    region: singapore
     healthCheckPath: /actuator/health
     envVars:
       - key: PORT
         value: 8080
       - key: DB_URL
-        sync: false # Set in Render Dashboard from your cloud MySQL (Aiven / Railway / Clever Cloud)
+        value: jdbc:mysql://mysql-2b7feb4e-mohanboddu18-d9b5.g.aivencloud.com:20198/defaultdb?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - key: DB_USERNAME
-        sync: false
+        value: avnadmin
       - key: DB_PASSWORD
-        sync: false
+        sync: false # Enter your Aiven MySQL Password in Render Dashboard
       - key: JWT_SECRET
         generateValue: true
       - key: HIBERNATE_DDL_AUTO

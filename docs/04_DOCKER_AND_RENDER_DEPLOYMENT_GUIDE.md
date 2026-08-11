@@ -83,12 +83,9 @@ jdbc:mysql://<HOST>:<PORT>/<DATABASE>?useSSL=true&allowPublicKeyRetrieval=true&s
 
 Initialize git if not already done:
 ```bash
-git init
 git add .
-git commit -m "Initial commit of Godavari Bank Management System"
-git branch -M main
-git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPOSITORY_NAME>.git
-git push -u origin main
+git commit -m "chore: configure cloud Aiven MySQL database connection"
+git push origin main
 ```
 
 ---
@@ -97,33 +94,33 @@ git push -u origin main
 
 1. Log in to [dashboard.render.com](https://dashboard.render.com/).
 2. Click **New +** $\to$ **Web Service**.
-3. Select **"Build and deploy from a Git repository"** and choose your repository.
+3. Select **"Build and deploy from a Git repository"** and choose `Mohanboddu18/Banking-Management`.
 4. Fill in the service configuration:
 
 | Setting | Value |
 | :--- | :--- |
 | **Name** | `godavari-bank-backend` |
-| **Region** | Singapore, Frankfurt, or Oregon (choose closest) |
+| **Region** | Singapore (Closest to Aiven Bangalore) |
 | **Branch** | `main` |
-| **Root Directory** | `backend` (if you are pointing to the backend folder) or leave blank if deploying root |
+| **Root Directory** | `backend` |
 | **Runtime** | **Docker** |
-| **Dockerfile Path** | `./Dockerfile` (or `./backend/Dockerfile` if root directory is empty) |
+| **Dockerfile Path** | `./Dockerfile` |
 | **Instance Type** | **Free** ($0 / month) |
 
 ---
 
 ## 6. Step 4: Configure Environment Variables on Render
 
-In the **Environment Variables** section on the Render dashboard, add the following:
+In the **Environment Variables** section on the Render dashboard, configure the following:
 
-| Key | Example Value | Description |
+| Key | Value | Description |
 | :--- | :--- | :--- |
 | `PORT` | `8080` | Port for Spring Boot (Render auto-maps this) |
-| `DB_URL` | `jdbc:mysql://mysql-xyz.aivencloud.com:12345/defaultdb?useSSL=true&allowPublicKeyRetrieval=true` | Your Cloud MySQL JDBC URL |
+| `DB_URL` | `jdbc:mysql://mysql-2b7feb4e-mohanboddu18-d9b5.g.aivencloud.com:20198/defaultdb?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC` | Aiven Cloud MySQL JDBC URL |
 | `DB_USERNAME` | `avnadmin` | MySQL Username |
-| `DB_PASSWORD` | `your-db-password` | MySQL Password |
-| `JWT_SECRET` | `MySuperSecretKeyGodavariBankEnterpriseSecurityToken2026123456789` | Strong 256-bit secret key |
-| `HIBERNATE_DDL_AUTO` | `update` | Automatically creates / updates tables |
+| `DB_PASSWORD` | `<your-aiven-mysql-password>` | Your Aiven MySQL Password (e.g. from Aiven Dashboard) |
+| `JWT_SECRET` | `BankingManagementSuperSecretKey2026GodavariBankSimulationSecureToken9876543210987654321` | 256-bit Security Token Key |
+| `HIBERNATE_DDL_AUTO` | `update` | Automatically creates / updates tables on Aiven |
 | `SQL_INIT_MODE` | `always` | Automatically seeds demo customers & staff |
 
 Click **"Create Web Service"**!

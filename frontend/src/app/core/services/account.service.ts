@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Account, ApiResponse, BalanceInfo, Beneficiary } from '../models/models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8080/api/accounts';
+  private readonly API_URL = `${environment.apiUrl}/accounts`;
 
   getMyAccounts(): Observable<ApiResponse<Account[]>> {
     return this.http.get<ApiResponse<Account[]>>(`${this.API_URL}/my-accounts`);

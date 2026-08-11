@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, EmiCalculationResult, Loan, LoanRepayment, LoanType, Transaction } from '../models/models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoanService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8080/api/loans';
+  private readonly API_URL = `${environment.apiUrl}/loans`;
 
   getLoanTypes(): Observable<ApiResponse<LoanType[]>> {
     return this.http.get<ApiResponse<LoanType[]>>(`${this.API_URL}/types`);

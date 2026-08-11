@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, LocationItem, Merchant, MobileOperator, MobileRecharge, MobileRechargePlan, Movie, MovieBooking, SeatLayout, ShowItem } from '../models/models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VASService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8080/api/vas';
+  private readonly API_URL = `${environment.apiUrl}/vas`;
 
   // QR Code Payments
   getMerchants(): Observable<ApiResponse<Merchant[]>> {

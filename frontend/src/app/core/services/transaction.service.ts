@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, PagedResponse, StatementSummary, Transaction } from '../models/models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TransactionService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8080/api/transactions';
+  private readonly API_URL = `${environment.apiUrl}/transactions`;
 
   deposit(payload: { accountNumber: string; amount: number; description?: string }): Observable<ApiResponse<Transaction>> {
     return this.http.post<ApiResponse<Transaction>>(`${this.API_URL}/deposit`, payload);

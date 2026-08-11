@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, CreditCard, DebitCard } from '../models/models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CardService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8080/api/cards';
+  private readonly API_URL = `${environment.apiUrl}/cards`;
 
   getDebitCards(): Observable<ApiResponse<DebitCard[]>> {
     return this.http.get<ApiResponse<DebitCard[]>>(`${this.API_URL}/debit`);

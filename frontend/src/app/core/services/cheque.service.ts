@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, ChequeRequest } from '../models/models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChequeService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8080/api/cheques';
+  private readonly API_URL = `${environment.apiUrl}/cheques`;
 
   requestChequeBook(payload: { accountNumber: string; numberOfLeaves: number }): Observable<ApiResponse<ChequeRequest>> {
     return this.http.post<ApiResponse<ChequeRequest>>(`${this.API_URL}/request`, payload);

@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiResponse, AuditLogItem, BankChargeItem, Employee, ManagerStats } from '../models/models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ManagerService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8080/api/manager';
+  private readonly API_URL = `${environment.apiUrl}/manager`;
 
   getDashboardStats(): Observable<ApiResponse<ManagerStats>> {
     return this.http.get<ApiResponse<ManagerStats>>(`${this.API_URL}/dashboard/stats`);

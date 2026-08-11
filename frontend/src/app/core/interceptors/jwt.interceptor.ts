@@ -6,7 +6,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
-  if (token && req.url.includes('http://localhost:8080')) {
+  if (token && (req.url.includes('/api') || req.url.includes('localhost') || req.url.includes('onrender.com'))) {
     const cloned = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { ApiResponse, UserAuth, UserProfile } from '../models/models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { ApiResponse, UserAuth, UserProfile } from '../models/models';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private readonly API_URL = 'http://localhost:8080/api/auth';
+  private readonly API_URL = `${environment.apiUrl}/auth`;
   private readonly STORAGE_KEY = 'bank_auth_user';
 
   currentUser = signal<UserAuth | null>(this.getStoredUser());

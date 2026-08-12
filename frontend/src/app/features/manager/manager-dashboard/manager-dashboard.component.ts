@@ -13,95 +13,99 @@ Chart.register(...registerables);
   standalone: true,
   imports: [CommonModule, RouterModule, InrCurrencyPipe],
   template: `
-    <div class="space-y-8 animate-fade-in max-w-6xl mx-auto">
+    <div class="space-y-6 animate-fade-in max-w-5xl mx-auto py-2">
       
-      <!-- Executive Header -->
-      <div class="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-[#1e1b4b] via-[#312e81] to-[#0f172a] border border-purple-500/30 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div>
-          <div class="flex items-center gap-2 text-purple-400 text-xs font-bold uppercase tracking-wider mb-1">
-            <i class="fa-solid fa-crown"></i> Executive Branch Governance
-          </div>
-          <h1 class="text-2xl md:text-3xl font-extrabold text-white">
-            Godavari Bank Branch Executive Overview
-          </h1>
-          <p class="text-xs md:text-sm text-slate-300 mt-1">
-            Real-time branch liquidity, credit portfolio exposure, and risk indicators
-          </p>
+      <!-- Top Banner Pill & Serif Header -->
+      <div class="text-center space-y-2">
+        <div class="banner-pill">
+          <i class="fa-solid fa-building-shield"></i> Executive Governance & Branch Liquidity Control
         </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          Branch Manager Console
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          Monitor real-time vault liquidity, retail loan portfolios, customer KYC status, and system audit logs.
+        </p>
+      </div>
 
-        <div class="flex flex-wrap gap-2.5">
-          <a routerLink="/manager/loans" class="bank-btn-primary py-2.5 px-4 text-xs font-bold bg-rose-600 hover:bg-rose-700">
-            <i class="fa-solid fa-stamp"></i> Loan Sanctions ({{ stats()?.pendingLoanApplications || 0 }})
+      <!-- Quick Action Buttons Bar -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-1">
+        <h2 class="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie text-amber-500"></i> Executive Performance Metrics
+        </h2>
+        <div class="flex flex-wrap gap-2">
+          <a routerLink="/manager/loans" class="bank-btn-primary py-1.5 px-3.5 text-xs font-bold shadow-xs">
+            <i class="fa-solid fa-stamp mr-1"></i> Loan Sanctions ({{ stats()?.pendingLoanApplications || 0 }})
           </a>
-          <a routerLink="/manager/employees" class="bank-btn-secondary py-2.5 px-4 text-xs font-bold">
-            <i class="fa-solid fa-users-gear text-purple-400"></i> Manage Staff
+          <a routerLink="/manager/employees" class="bank-btn-secondary py-1.5 px-3.5 text-xs font-semibold shadow-2xs">
+            <i class="fa-solid fa-users text-slate-500 mr-1"></i> Staff Directory
           </a>
         </div>
       </div>
 
       <!-- High-Level KPI Metric Cards (4 Columns) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
         
         <!-- Total Bank Deposits -->
-        <div class="bank-glass p-6 rounded-3xl border border-sky-500/20 hover:border-sky-500/50 transition-all">
-          <div class="flex justify-between items-start mb-3">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Total Branch Deposits</span>
-            <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-lg">
+        <div class="bank-card p-5 space-y-2">
+          <div class="flex justify-between items-start">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Vault Deposits</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs shadow-2xs">
               <i class="fa-solid fa-vault"></i>
             </div>
           </div>
-          <div class="text-2xl font-extrabold text-white font-mono">
+          <div class="text-xl font-extrabold text-slate-950 font-display">
             {{ stats()?.totalBankDeposits || 0 | inrCurrency }}
           </div>
-          <div class="text-[11px] text-emerald-400 font-semibold mt-2 flex items-center gap-1">
-            <i class="fa-solid fa-arrow-trend-up"></i> {{ stats()?.activeAccounts || 0 }} Active Accounts
+          <div class="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-arrow-trend-up text-[10px]"></i> {{ stats()?.activeAccounts || 0 }} Active Accounts
           </div>
         </div>
 
         <!-- Disbursed Loan Portfolio -->
-        <div class="bank-glass p-6 rounded-3xl border border-rose-500/20 hover:border-rose-500/50 transition-all">
-          <div class="flex justify-between items-start mb-3">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Disbursed Loans</span>
-            <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-lg">
+        <div class="bank-card p-5 space-y-2">
+          <div class="flex justify-between items-start">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sanctioned Loans</span>
+            <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs shadow-2xs">
               <i class="fa-solid fa-hand-holding-dollar"></i>
             </div>
           </div>
-          <div class="text-2xl font-extrabold text-rose-400 font-mono">
+          <div class="text-xl font-extrabold text-rose-700 font-display">
             {{ stats()?.totalDisbursedLoanAmount || 0 | inrCurrency }}
           </div>
-          <div class="text-[11px] text-slate-400 mt-2">
-            Outstanding: <span class="font-bold text-white">{{ stats()?.totalOutstandingLoanAmount || 0 | inrCurrency }}</span>
+          <div class="text-[11px] text-slate-500 font-medium">
+            Outstanding: <span class="font-bold text-slate-900 font-mono">{{ stats()?.totalOutstandingLoanAmount || 0 | inrCurrency }}</span>
           </div>
         </div>
 
         <!-- Total Customers -->
-        <div class="bank-glass p-6 rounded-3xl border border-emerald-500/20 hover:border-emerald-500/50 transition-all">
-          <div class="flex justify-between items-start mb-3">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Registered Customers</span>
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+        <div class="bank-card p-5 space-y-2">
+          <div class="flex justify-between items-start">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Customers</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs shadow-2xs">
               <i class="fa-solid fa-users"></i>
             </div>
           </div>
-          <div class="text-2xl font-extrabold text-white font-mono">
+          <div class="text-xl font-extrabold text-slate-950 font-display">
             {{ stats()?.totalCustomers || 0 }}
           </div>
-          <div class="text-[11px] text-emerald-400 font-semibold mt-2">
+          <div class="text-[11px] text-emerald-600 font-bold">
             100% KYC Verified
           </div>
         </div>
 
         <!-- Today Transactions -->
-        <div class="bank-glass p-6 rounded-3xl border border-purple-500/20 hover:border-purple-500/50 transition-all">
-          <div class="flex justify-between items-start mb-3">
-            <span class="text-xs font-semibold text-slate-400 uppercase">Today's Txn Volume</span>
-            <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+        <div class="bank-card p-5 space-y-2">
+          <div class="flex justify-between items-start">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Today's Volume</span>
+            <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-xs shadow-2xs">
               <i class="fa-solid fa-chart-line"></i>
             </div>
           </div>
-          <div class="text-2xl font-extrabold text-purple-300 font-mono">
+          <div class="text-xl font-extrabold text-slate-950 font-display">
             {{ stats()?.todayCreditVolume || 0 | inrCurrency }}
           </div>
-          <div class="text-[11px] text-slate-400 mt-2">
+          <div class="text-[11px] text-slate-500 font-medium">
             {{ stats()?.todayTransactions || 0 }} transactions processed
           </div>
         </div>
@@ -109,14 +113,15 @@ Chart.register(...registerables);
       </div>
 
       <!-- Charts Section (2 Columns) -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         
         <!-- Left: Monthly Trend Bar Chart (2 Cols) -->
-        <div class="lg:col-span-2 bank-glass p-6 md:p-8 rounded-3xl space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-chart-simple text-purple-400"></i> 6-Month Liquidity & Flow Trends (₹)
+        <div class="lg:col-span-2 bank-card p-6 space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
+              <i class="fa-solid fa-chart-simple text-amber-500"></i> Monthly Liquidity Trends (₹)
             </h3>
+            <span class="pill-dark text-[9px] py-0 px-2">FY 2025-26</span>
           </div>
           <div class="h-64 relative">
             <canvas #trendChartCanvas></canvas>
@@ -124,65 +129,65 @@ Chart.register(...registerables);
         </div>
 
         <!-- Right: Governance Quick Desks -->
-        <div class="bank-glass p-6 md:p-8 rounded-3xl space-y-4 flex flex-col justify-between">
-          <div>
-            <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-              <i class="fa-solid fa-shield-halved text-purple-400"></i> Executive Quick Actions
+        <div class="bank-card p-6 space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
+              <i class="fa-solid fa-shield-halved text-amber-500"></i> Controls & Desks
             </h3>
+          </div>
 
-            <div class="space-y-3">
-              <a routerLink="/manager/loans" class="p-3 rounded-2xl bg-rose-950/30 hover:bg-rose-950/60 border border-rose-500/20 flex items-center justify-between transition-all group">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">
-                    <i class="fa-solid fa-stamp"></i>
-                  </div>
-                  <div>
-                    <div class="text-xs font-bold text-white">Loan Sanctions</div>
-                    <div class="text-[10px] text-rose-400 font-semibold">{{ stats()?.pendingLoanApplications || 0 }} pending sanction</div>
-                  </div>
+          <div class="space-y-2.5">
+            <a routerLink="/manager/loans" class="p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 flex items-center justify-between transition-all group shadow-2xs">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs font-bold shadow-2xs">
+                  <i class="fa-solid fa-stamp"></i>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:text-rose-400"></i>
-              </a>
+                <div>
+                  <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Loan Sanctions</div>
+                  <div class="text-[10px] text-rose-700 font-bold">{{ stats()?.pendingLoanApplications || 0 }} pending approval</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-amber-600 text-xs"></i>
+            </a>
 
-              <a routerLink="/manager/customers" class="p-3 rounded-2xl bg-emerald-950/30 hover:bg-emerald-950/60 border border-emerald-500/20 flex items-center justify-between transition-all group">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
-                    <i class="fa-solid fa-user-lock"></i>
-                  </div>
-                  <div>
-                    <div class="text-xs font-bold text-white">Customer Account Controls</div>
-                    <div class="text-[10px] text-emerald-400 font-semibold">{{ stats()?.activeAccounts || 0 }} Active Accounts</div>
-                  </div>
+            <a routerLink="/manager/customers" class="p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 flex items-center justify-between transition-all group shadow-2xs">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shadow-2xs">
+                  <i class="fa-solid fa-user-lock"></i>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:text-emerald-400"></i>
-              </a>
+                <div>
+                  <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Customer Controls</div>
+                  <div class="text-[10px] text-slate-500 font-medium">{{ stats()?.activeAccounts || 0 }} accounts managed</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-amber-600 text-xs"></i>
+            </a>
 
-              <a routerLink="/manager/bank-charges" class="p-3 rounded-2xl bg-amber-950/30 hover:bg-amber-950/60 border border-amber-500/20 flex items-center justify-between transition-all group">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
-                    <i class="fa-solid fa-sliders"></i>
-                  </div>
-                  <div>
-                    <div class="text-xs font-bold text-white">Bank Charges & Scheduler</div>
-                    <div class="text-[10px] text-amber-400 font-semibold">Min Balance Maintenance</div>
-                  </div>
+            <a routerLink="/manager/bank-charges" class="p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 flex items-center justify-between transition-all group shadow-2xs">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold shadow-2xs">
+                  <i class="fa-solid fa-sliders"></i>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:text-amber-400"></i>
-              </a>
+                <div>
+                  <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Bank Charges</div>
+                  <div class="text-[10px] text-slate-500 font-medium">Scheduler & Tariff Config</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-amber-600 text-xs"></i>
+            </a>
 
-              <a routerLink="/manager/audit-logs" class="p-3 rounded-2xl bg-indigo-950/30 hover:bg-indigo-950/60 border border-indigo-500/20 flex items-center justify-between transition-all group">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                  </div>
-                  <div>
-                    <div class="text-xs font-bold text-white">System Audit Logs</div>
-                    <div class="text-[10px] text-indigo-400 font-semibold">Live Security Trail</div>
-                  </div>
+            <a routerLink="/manager/audit-logs" class="p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 flex items-center justify-between transition-all group shadow-2xs">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold shadow-2xs">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
-                <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:text-indigo-400"></i>
-              </a>
-            </div>
+                <div>
+                  <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Audit Logs</div>
+                  <div class="text-[10px] text-slate-500 font-medium">Security & Compliance Trail</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-amber-600 text-xs"></i>
+            </a>
           </div>
         </div>
 

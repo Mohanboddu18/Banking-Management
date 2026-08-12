@@ -17,4 +17,11 @@ public class DepositRequest {
     private BigDecimal amount;
 
     private String description;
+    private String depositMethod; // e.g. "ATM_CARD", "DIRECT"
+    private String cardNumber;
+    private Integer expiryMonth;
+    private Integer expiryYear;
+    private String cvv;
+    private String atmPin;
 }
+

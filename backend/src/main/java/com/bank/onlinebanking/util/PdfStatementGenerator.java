@@ -126,7 +126,13 @@ public class PdfStatementGenerator {
                 emptyCell.setPadding(10);
                 txTable.addCell(emptyCell);
             } else {
-                for (TransactionResponse tx : statement.getTransactions()) {
+                java.util.List<TransactionResponse> sortedTxns = new java.util.ArrayList<>(statement.getTransactions());
+                sortedTxns.sort((a, b) -> {
+                    if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
+                    return b.getCreatedAt().compareTo(a.getCreatedAt());
+                });
+
+                for (TransactionResponse tx : sortedTxns) {
                     Color rowBg = Color.WHITE;
                     String formattedDate = tx.getCreatedAt() != null ? tx.getCreatedAt().format(DATE_TIME_FORMATTER) : "-";
                     

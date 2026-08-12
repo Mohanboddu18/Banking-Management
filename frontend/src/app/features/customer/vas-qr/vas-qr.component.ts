@@ -14,30 +14,40 @@ import { QrScannerModalComponent } from '../../../shared/components/qr-scanner-m
   standalone: true,
   imports: [CommonModule, FormsModule, InrCurrencyPipe, PinModalComponent, QrScannerModalComponent],
   template: `
-    <div class="max-w-3xl mx-auto space-y-6 animate-fade-in">
+    <div class="max-w-4xl mx-auto space-y-6 animate-fade-in py-2">
       
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white flex items-center gap-2.5">
-            <i class="fa-solid fa-qrcode text-cyan-400"></i> Merchant QR Code Payments
-          </h1>
-          <p class="text-xs text-slate-400">Scan any BharatQR or verified merchant code for instant zero-fee settlement</p>
+      <!-- Top Banner Pill & Serif Header -->
+      <div class="text-center space-y-2">
+        <div class="banner-pill">
+          <i class="fa-solid fa-qrcode"></i> Instant BharatQR & Merchant Settlements
         </div>
-        <button (click)="showScanner.set(true)" class="bank-btn-primary text-xs">
-          <i class="fa-solid fa-camera"></i> Open Scanner
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          Scan & Pay QR
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          Scan verified BharatQR codes, merchant UPI IDs, or enter codes directly for zero-fee real-time settlements.
+        </p>
+      </div>
+
+      <!-- Action Sub-Header -->
+      <div class="flex items-center justify-between pb-1">
+        <h2 class="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+          <i class="fa-solid fa-receipt text-amber-500"></i> Merchant Payment
+        </h2>
+        <button (click)="showScanner.set(true)" class="bank-btn-primary text-xs py-1.5 px-3.5 font-bold shadow-xs">
+          <i class="fa-solid fa-camera"></i> Open Camera Scanner
         </button>
       </div>
 
       <!-- Payment Form Card -->
-      <div class="bank-glass p-6 md:p-8 rounded-3xl space-y-6">
-        <form (ngSubmit)="initiateQrPayment()" class="space-y-5">
+      <div class="bank-card p-6 space-y-4">
+        <form (ngSubmit)="initiateQrPayment()" class="space-y-4 text-xs">
           
           <div>
-            <label class="bank-label">Debiting Account *</label>
-            <select [(ngModel)]="selectedAccount" name="account" required class="bank-input">
+            <label class="bank-label">From Account *</label>
+            <select [(ngModel)]="selectedAccount" name="account" required class="bank-input text-xs font-semibold">
               <option *ngFor="let acc of accounts()" [ngValue]="acc">
-                {{ acc.accountNumber }} — {{ acc.accountTypeName }} (Balance: {{ acc.balance | inrCurrency }})
+                {{ acc.accountNumber }} (Available: {{ acc.balance | inrCurrency }})
               </option>
             </select>
           </div>
@@ -46,66 +56,69 @@ import { QrScannerModalComponent } from '../../../shared/components/qr-scanner-m
             <label class="bank-label">Merchant Code / QR Payload *</label>
             <div class="relative">
               <input [(ngModel)]="qrPayload" name="qrPayload" required type="text" 
-                     placeholder="e.g. MERCH001 or scan QR" class="bank-input pr-12 font-mono" />
-              <button type="button" (click)="showScanner.set(true)" class="absolute right-3 top-3 text-sky-400 hover:text-sky-300">
-                <i class="fa-solid fa-qrcode text-lg"></i>
+                     placeholder="e.g. MERCH001 or scanned merchant ID" class="bank-input bank-input-with-icon-right pr-10 font-mono text-xs font-bold" />
+              <button type="button" (click)="showScanner.set(true)" class="absolute right-3 top-1/2 -translate-y-1/2 text-amber-600 hover:text-amber-700 cursor-pointer">
+                <i class="fa-solid fa-qrcode text-base"></i>
               </button>
             </div>
-            <p *ngIf="selectedMerchantName" class="text-xs text-emerald-400 font-semibold mt-1">
-              <i class="fa-solid fa-circle-check"></i> Paying to: {{ selectedMerchantName }}
+            <p *ngIf="selectedMerchantName" class="text-[11px] text-emerald-600 font-bold mt-1 flex items-center gap-1">
+              <i class="fa-solid fa-circle-check text-[10px]"></i> Merchant: {{ selectedMerchantName }}
             </p>
           </div>
 
           <div>
-            <label class="bank-label">Payment Amount (₹) *</label>
+            <label class="bank-label">Amount (₹) *</label>
             <div class="relative">
-              <span class="absolute left-4 top-3 text-lg font-bold text-slate-500">₹</span>
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-bold text-slate-400 pointer-events-none">₹</span>
               <input [(ngModel)]="amount" name="amount" required type="number" min="1" step="0.01"
-                     placeholder="0.00" class="bank-input pl-9 text-lg font-bold text-cyan-400" />
+                     placeholder="0.00" class="bank-input bank-input-with-currency pl-10 text-lg font-extrabold text-slate-900 font-display" />
             </div>
 
             <!-- Quick Amounts -->
             <div class="flex flex-wrap gap-2 mt-2">
               <button type="button" *ngFor="let p of [100, 250, 500, 1000, 2000]" 
                       (click)="amount = p"
-                      class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700">
+                      class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-amber-50 hover:border-amber-400 text-xs font-semibold text-slate-700 border border-slate-200 transition-all cursor-pointer shadow-2xs">
                 +₹{{ p }}
               </button>
             </div>
           </div>
 
           <div>
-            <label class="bank-label">Payment Note / Bill Reference</label>
-            <input [(ngModel)]="note" name="note" type="text" placeholder="e.g. Dinner bill, Grocery shopping" class="bank-input" />
+            <label class="bank-label">Note / Invoice Ref (Optional)</label>
+            <input [(ngModel)]="note" name="note" type="text" placeholder="e.g. Dinner, Grocery Bill, Shopping" class="bank-input text-xs" />
           </div>
 
           <button type="submit" [disabled]="!selectedAccount || !qrPayload || !amount || amount <= 0" 
-                  class="bank-btn-primary w-full py-3.5 text-base">
-            <i class="fa-solid fa-shield-halved"></i> Authorize & Pay
+                  class="bank-btn-primary w-full py-2.5 text-xs font-bold rounded-xl mt-1 cursor-pointer">
+            <i class="fa-solid fa-bolt"></i> Pay Merchant Instantly →
           </button>
         </form>
       </div>
 
       <!-- Quick Verified Merchants Grid -->
-      <div class="bank-glass p-6 rounded-3xl space-y-4">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-store text-sky-400"></i> Verified Local Merchants
-        </h3>
+      <div class="bank-card p-5 space-y-3">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+          <h3 class="text-base font-bold text-slate-900 font-serif flex items-center gap-1.5">
+            <i class="fa-solid fa-store text-amber-500"></i> Verified Partner Merchants
+          </h3>
+          <span class="pill-dark text-[9px] py-0 px-2">{{ merchants().length }} Active</span>
+        </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div *ngFor="let m of merchants()" 
                (click)="pickMerchant(m)"
-               class="p-3.5 rounded-2xl bg-slate-800/40 hover:bg-sky-950/40 border border-slate-700/50 hover:border-sky-500/40 cursor-pointer flex items-center justify-between transition-all group">
+               class="p-3.5 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 cursor-pointer flex items-center justify-between transition-all group shadow-2xs">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold">
+              <div class="w-9 h-9 rounded-lg bg-amber-500/15 text-amber-700 flex items-center justify-center text-sm font-bold shadow-2xs">
                 <i class="fa-solid fa-shop"></i>
               </div>
               <div>
-                <div class="text-xs font-bold text-white group-hover:text-sky-300">{{ m.businessName }}</div>
-                <div class="text-[10px] text-slate-400">{{ m.category }} • {{ m.merchantCode }}</div>
+                <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">{{ m.businessName }}</div>
+                <div class="text-[10px] text-slate-500 font-mono">{{ m.category }} • {{ m.merchantCode }}</div>
               </div>
             </div>
-            <span class="badge badge-success text-[10px]">Select</span>
+            <span class="pill-dark text-[9px] py-0 px-2 group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">Select</span>
           </div>
         </div>
       </div>
@@ -125,30 +138,32 @@ import { QrScannerModalComponent } from '../../../shared/components/qr-scanner-m
       </app-pin-modal>
 
       <!-- Success Receipt Modal -->
-      <div *ngIf="receipt()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-        <div class="bank-glass p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl border border-cyan-500/40 text-center">
-          <div class="w-16 h-16 rounded-full bg-cyan-500/15 border border-cyan-500 text-cyan-400 text-3xl flex items-center justify-center mx-auto mb-4 animate-bounce">
+      <div *ngIf="receipt()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+        <div class="bank-card p-6 rounded-2xl max-w-xs w-full shadow-2xl text-center space-y-4">
+          <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-2xl flex items-center justify-center mx-auto">
             <i class="fa-solid fa-check"></i>
           </div>
-          <h3 class="text-xl font-bold text-white mb-1">Paid to {{ receipt()?.merchantName }}</h3>
-          <p class="text-xs text-slate-400 mb-6 font-mono">Ref ID: {{ receipt()?.transactionRef }}</p>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 font-serif">Payment Successful!</h3>
+            <p class="text-xs text-slate-500 font-mono mt-0.5">{{ receipt()?.transactionRef }}</p>
+          </div>
 
-          <div class="p-4 rounded-2xl bg-slate-900 border border-white/5 text-left space-y-2 mb-6 text-xs">
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-left space-y-1.5 text-xs">
             <div class="flex justify-between">
-              <span class="text-slate-400">Amount Paid:</span>
-              <span class="font-bold text-cyan-400 text-base">{{ receipt()?.amount | inrCurrency }}</span>
+              <span class="text-slate-500">Merchant:</span>
+              <span class="text-slate-900 font-bold">{{ receipt()?.merchantName }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-400">Merchant Code:</span>
-              <span class="font-mono text-white">{{ receipt()?.merchantCode }}</span>
+              <span class="text-slate-500">Amount Paid:</span>
+              <span class="font-extrabold text-emerald-600 font-mono">{{ receipt()?.amount | inrCurrency }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-400">Remaining Balance:</span>
-              <span class="font-mono text-slate-200 font-bold">{{ receipt()?.remainingBalance | inrCurrency }}</span>
+              <span class="text-slate-500">New Balance:</span>
+              <span class="font-mono text-slate-900 font-bold">{{ receipt()?.remainingBalance | inrCurrency }}</span>
             </div>
           </div>
 
-          <button (click)="receipt.set(null)" class="bank-btn-primary w-full py-3">
+          <button (click)="receipt.set(null)" class="bank-btn-primary w-full py-2.5 text-xs font-bold rounded-xl">
             Done
           </button>
         </div>

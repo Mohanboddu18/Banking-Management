@@ -15,152 +15,181 @@ import { MaskCardPipe } from '../../../shared/pipes/mask-card.pipe';
   standalone: true,
   imports: [CommonModule, RouterModule, InrCurrencyPipe, MaskCardPipe],
   template: `
-    <div class="space-y-6 animate-fade-in">
+    <div class="space-y-6 animate-fade-in py-2 max-w-6xl mx-auto">
       
-      <!-- Welcome Header Banner -->
-      <div class="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-[#002b49] via-[#083358] to-[#0f172a] border border-white/10 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div class="relative z-10">
-          <div class="flex items-center gap-2 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-1">
-            <i class="fa-solid fa-circle-check"></i> Verified Retail Customer
-          </div>
-          <h1 class="text-2xl md:text-3xl font-extrabold text-white mb-2">
-            Welcome back, {{ authService.currentUser()?.fullName }}!
-          </h1>
-          <p class="text-xs md:text-sm text-slate-300">
-            Account Number: <span class="font-mono text-sky-300 font-semibold">{{ primaryAccount()?.accountNumber || 'Loading...' }}</span> • IFSC: <span class="font-mono text-slate-300 font-semibold">{{ primaryAccount()?.ifscCode }}</span>
-          </p>
+      <!-- Welcome Hero Section (Matching Reference Header) -->
+      <div class="text-center space-y-2.5 py-4">
+        <div class="banner-pill">
+          <i class="fa-solid fa-building-columns"></i> Secure Retail Banking Portal
         </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          Welcome to Godavari Bank Online
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          Manage your savings accounts, instant fund transfers, ATM debit cards, and loan portfolio with 256-bit bank-grade encryption.
+        </p>
+      </div>
 
-        <!-- Quick Quick Action CTAs -->
-        <div class="flex flex-wrap gap-2.5 relative z-10">
-          <a routerLink="/customer/transfer" class="bank-btn-primary py-2.5 px-4 text-xs font-bold">
+      <!-- Section Title with Amber Icon and Right Pill Button -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 font-serif flex items-center gap-2">
+            <i class="fa-solid fa-vault text-amber-500"></i> Accounts & Financial Assets
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">Real-time account balances, credit lines & active debit cards</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <a routerLink="/customer/transfer" class="bank-btn-primary py-1.5 px-4 text-xs font-bold shadow-xs">
             <i class="fa-solid fa-paper-plane"></i> Send Money
           </a>
-          <a routerLink="/customer/vas/qr" class="bank-btn-secondary py-2.5 px-4 text-xs font-bold bg-white/10 hover:bg-white/15">
-            <i class="fa-solid fa-qrcode"></i> Scan QR
-          </a>
-          <a routerLink="/customer/statements" class="bank-btn-secondary py-2.5 px-4 text-xs font-bold">
-            <i class="fa-solid fa-file-arrow-down"></i> Statement
-          </a>
+          <button (click)="loadData()" class="px-3.5 py-1.5 rounded-full bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold border border-slate-300 shadow-2xs cursor-pointer flex items-center gap-1.5 transition-all">
+            <i class="fa-solid fa-arrows-rotate text-amber-500"></i> Refresh
+          </button>
         </div>
       </div>
 
-      <!-- Financial Metric Cards (3 Columns) -->
+      <!-- Financial Metric Cards (3 Columns - Matching Reference Table Cards) -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
         
-        <!-- Total Available Balance Card -->
-        <div class="bank-glass p-6 rounded-2xl relative overflow-hidden group hover:border-sky-500/40 transition-all">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Available Balance</div>
-              <div class="text-2xl md:text-3xl font-extrabold text-white mt-1">
-                {{ totalBalance() | inrCurrency }}
-              </div>
-            </div>
-            <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center text-xl">
-              <i class="fa-solid fa-wallet"></i>
-            </div>
+        <!-- Account Card 1: Primary Account -->
+        <div class="bank-card p-5 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <span class="pill-dark">{{ primaryAccount()?.accountTypeName || 'SAVINGS' }} #{{ primaryAccount()?.id || '1' }}</span>
+            <span class="pill-green"><i class="fa-solid fa-circle-check"></i> {{ primaryAccount()?.status || 'ACTIVE' }}</span>
           </div>
-          <div class="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-white/5">
-            <span>{{ accounts().length }} Linked Account(s)</span>
-            <span class="text-emerald-400 font-semibold flex items-center gap-1">
-              <i class="fa-solid fa-shield"></i> RBI Insured
-            </span>
+
+          <div class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <i class="fa-solid fa-id-card text-amber-500 text-sm"></i>
+            <span>Account: <strong class="text-slate-900 font-mono">{{ primaryAccount()?.accountNumber || 'Loading...' }}</strong></span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-1">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Available Balance</div>
+            <div class="text-2xl font-extrabold text-slate-950 font-display">
+              {{ totalBalance() | inrCurrency }}
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono">IFSC: {{ primaryAccount()?.ifscCode }}</div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+            <a routerLink="/customer/deposit-withdraw" class="text-amber-600 font-bold hover:underline flex items-center gap-1">
+              <i class="fa-solid fa-plus-circle"></i> Deposit / Cash
+            </a>
+            <a routerLink="/customer/statements" class="text-slate-600 font-semibold hover:text-slate-900">
+              Passbook →
+            </a>
           </div>
         </div>
 
-        <!-- Active Loans Outstanding -->
-        <div class="bank-glass p-6 rounded-2xl relative overflow-hidden group hover:border-rose-500/40 transition-all">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Active Loan Balance</div>
-              <div class="text-2xl md:text-3xl font-extrabold text-rose-400 mt-1">
-                {{ totalLoanOutstanding() | inrCurrency }}
-              </div>
-            </div>
-            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
-              <i class="fa-solid fa-hand-holding-dollar"></i>
-            </div>
+        <!-- Account Card 2: Active Loans Portfolio -->
+        <div class="bank-card p-5 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <span class="pill-dark">LOAN PORTFOLIO</span>
+            <span class="badge" [ngClass]="activeLoans().length > 0 ? 'badge-warning' : 'badge-info'">
+              {{ activeLoans().length > 0 ? activeLoans().length + ' Active' : 'No Active Debt' }}
+            </span>
           </div>
-          <div class="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-white/5">
-            <span>{{ activeLoans().length }} Active Facility</span>
-            <a routerLink="/customer/loans" class="text-sky-400 hover:underline">View Repayments →</a>
+
+          <div class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <i class="fa-solid fa-hand-holding-dollar text-amber-500 text-sm"></i>
+            <span>Credit Limit & Outstanding</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-1">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Outstanding Debt</div>
+            <div class="text-2xl font-extrabold text-rose-600 font-display">
+              {{ totalLoanOutstanding() | inrCurrency }}
+            </div>
+            <div class="text-[10px] text-slate-400">Competitive Rates from 8.5% p.a.</div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+            <a routerLink="/customer/loans" class="text-amber-600 font-bold hover:underline">
+              Apply New Loan →
+            </a>
+            <span class="text-slate-400 text-[10px]">Instant Sanctions</span>
           </div>
         </div>
 
-        <!-- Primary Card Preview -->
-        <div class="bank-glass p-6 rounded-2xl relative overflow-hidden group hover:border-indigo-500/40 transition-all">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <div class="text-xs font-medium text-slate-400 uppercase tracking-wider">Primary Debit Card</div>
-              <div class="text-lg font-bold text-slate-200 mt-1 font-mono tracking-wider">
-                {{ primaryCard()?.maskedCardNumber || '•••• •••• •••• 1001' }}
-              </div>
-            </div>
-            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl">
-              <i class="fa-brands fa-cc-visa"></i>
-            </div>
+        <!-- Account Card 3: Primary Debit Card -->
+        <div class="bank-card p-5 space-y-3.5">
+          <div class="flex items-center justify-between">
+            <span class="pill-dark">DEBIT CARD</span>
+            <span class="pill-green"><i class="fa-solid fa-circle-check"></i> {{ primaryCard()?.status || 'ACTIVE' }}</span>
           </div>
-          <div class="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-white/5">
-            <span class="badge" [ngClass]="primaryCard()?.status === 'ACTIVE' ? 'badge-success' : 'badge-danger'">
-              {{ primaryCard()?.status || 'ACTIVE' }}
-            </span>
-            <a routerLink="/customer/cards-cheques" class="text-sky-400 hover:underline">Card Controls →</a>
+
+          <div class="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <i class="fa-solid fa-credit-card text-amber-500 text-sm"></i>
+            <span>RuPay Platinum Debit Card</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-gradient-to-br from-slate-900 to-slate-800 text-white text-center space-y-1 shadow-xs">
+            <div class="text-[10px] text-slate-400 tracking-widest font-mono">GODAVARI PLATINUM</div>
+            <div class="text-lg font-extrabold font-mono tracking-widest text-amber-400 py-0.5">
+              {{ primaryCard()?.maskedCardNumber || '•••• •••• •••• 1001' }}
+            </div>
+            <div class="text-[10px] text-slate-300">EXP: {{ primaryCard()?.expiryMonth || '12' }}/{{ primaryCard()?.expiryYear || '30' }}</div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
+            <a routerLink="/customer/cards-cheques" class="text-amber-600 font-bold hover:underline">
+              Card Controls & PIN →
+            </a>
+            <span class="text-emerald-600 font-bold text-[10px]">Contactless</span>
           </div>
         </div>
 
       </div>
 
       <!-- Main Section: Recent Activity & Quick Value-Added Services -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 pt-2">
         
         <!-- Left: Recent Transactions Table (2 Cols) -->
-        <div class="lg:col-span-2 bank-glass p-6 rounded-3xl">
-          <div class="flex items-center justify-between mb-5">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-clock-rotate-left text-sky-400"></i>
-              <h3 class="text-base font-bold text-white">Recent Transactions</h3>
-            </div>
-            <a routerLink="/customer/statements" class="text-xs text-sky-400 hover:underline font-semibold">
-              View All History →
+        <div class="lg:col-span-2 bank-card p-5 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
+              <i class="fa-solid fa-clock-rotate-left text-amber-500"></i> Recent Activity
+            </h3>
+            <a routerLink="/customer/statements" class="text-xs text-amber-600 hover:underline font-bold">
+              View All Statements →
             </a>
           </div>
 
-          <div *ngIf="recentTxns().length === 0" class="py-12 text-center text-slate-400 text-xs">
-            No transactions found yet. Try transferring or depositing funds!
+          <div *ngIf="recentTxns().length === 0" class="py-8 text-center text-slate-400 text-xs">
+            No transactions found yet.
           </div>
 
           <div *ngIf="recentTxns().length > 0" class="overflow-x-auto">
             <table class="bank-table">
               <thead>
                 <tr>
-                  <th>Details / Reference</th>
+                  <th>Details</th>
                   <th>Type</th>
                   <th>Amount</th>
-                  <th>Balance After</th>
+                  <th>Balance</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let txn of recentTxns()">
                   <td>
-                    <div class="font-semibold text-white text-xs">{{ txn.description }}</div>
+                    <div class="font-bold text-slate-900 text-xs">{{ txn.description }}</div>
                     <div class="text-[10px] text-slate-500 font-mono">{{ txn.transactionRef }} • {{ txn.createdAt | date:'short' }}</div>
                   </td>
                   <td>
-                    <span class="badge badge-info text-[10px]">{{ txn.transactionTypeName }}</span>
+                    <span class="badge badge-info text-[9px]">{{ txn.transactionTypeName }}</span>
                   </td>
                   <td>
-                    <span class="font-bold text-xs" [ngClass]="txn.entryType === 'CREDIT' ? 'text-emerald-400' : 'text-slate-200'">
+                    <span class="font-extrabold text-xs font-mono" [ngClass]="txn.entryType === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900'">
                       {{ txn.entryType === 'CREDIT' ? '+' : '-' }}{{ txn.amount | inrCurrency }}
                     </span>
                   </td>
-                  <td class="text-xs text-slate-400 font-mono">
+                  <td class="text-xs text-slate-500 font-mono">
                     {{ txn.balanceAfter | inrCurrency }}
                   </td>
                   <td>
-                    <span class="badge badge-success text-[10px]">
-                      <i class="fa-solid fa-check"></i> {{ txn.status }}
+                    <span class="badge badge-success text-[9px]">
+                      {{ txn.status }}
                     </span>
                   </td>
                 </tr>
@@ -170,69 +199,71 @@ import { MaskCardPipe } from '../../../shared/pipes/mask-card.pipe';
         </div>
 
         <!-- Right: Value Added Shortcuts & Fast Hub -->
-        <div class="bank-glass p-6 rounded-3xl flex flex-col gap-4">
-          <h3 class="text-base font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-grid-2 text-sky-400"></i> Digital Services Hub
-          </h3>
+        <div class="bank-card p-5 space-y-3">
+          <div class="pb-2 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
+              <i class="fa-solid fa-layer-group text-amber-500"></i> Digital Services
+            </h3>
+          </div>
 
           <!-- QR Pay Widget -->
           <a routerLink="/customer/vas/qr" 
-             class="p-4 rounded-2xl bg-gradient-to-br from-sky-950/60 to-slate-900 border border-sky-500/20 hover:border-sky-500/50 flex items-center justify-between transition-all group">
+             class="p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 flex items-center justify-between transition-all group">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+              <div class="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-600 flex items-center justify-center text-sm font-bold shadow-2xs">
                 <i class="fa-solid fa-qrcode"></i>
               </div>
               <div>
-                <div class="text-xs font-bold text-white">Merchant QR Pay</div>
-                <div class="text-[11px] text-slate-400">Instant UPI & QR Settlements</div>
+                <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Scan & Pay QR</div>
+                <div class="text-[10px] text-slate-500">BharatQR & UPI Merchants</div>
               </div>
             </div>
-            <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:text-sky-400"></i>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-xs group-hover:text-amber-600"></i>
           </a>
 
           <!-- Mobile Telecom Recharge -->
           <a routerLink="/customer/vas/recharge" 
-             class="p-4 rounded-2xl bg-gradient-to-br from-teal-950/60 to-slate-900 border border-teal-500/20 hover:border-teal-500/50 flex items-center justify-between transition-all group">
+             class="p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 flex items-center justify-between transition-all group">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+              <div class="w-8 h-8 rounded-lg bg-teal-500/15 text-teal-600 flex items-center justify-center text-sm font-bold shadow-2xs">
                 <i class="fa-solid fa-mobile-screen-button"></i>
               </div>
               <div>
-                <div class="text-xs font-bold text-white">Mobile Recharge</div>
-                <div class="text-[11px] text-slate-400">Jio, Airtel, Vi, BSNL</div>
+                <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Mobile Recharge</div>
+                <div class="text-[10px] text-slate-500">Jio, Airtel, Vi, BSNL Plans</div>
               </div>
             </div>
-            <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:text-teal-400"></i>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-xs group-hover:text-amber-600"></i>
           </a>
 
           <!-- Movie Tickets Booking -->
           <a routerLink="/customer/vas/movies" 
-             class="p-4 rounded-2xl bg-gradient-to-br from-fuchsia-950/60 to-slate-900 border border-fuchsia-500/20 hover:border-fuchsia-500/50 flex items-center justify-between transition-all group">
+             class="p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 flex items-center justify-between transition-all group">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-fuchsia-500/10 text-fuchsia-400 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+              <div class="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-600 flex items-center justify-center text-sm font-bold shadow-2xs">
                 <i class="fa-solid fa-film"></i>
               </div>
               <div>
-                <div class="text-xs font-bold text-white">Movie Tickets</div>
-                <div class="text-[11px] text-slate-400">Interactive Seat Layout Booking</div>
+                <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Movie Tickets</div>
+                <div class="text-[10px] text-slate-500">Cinema Seats & Fast Booking</div>
               </div>
             </div>
-            <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:text-fuchsia-400"></i>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-xs group-hover:text-amber-600"></i>
           </a>
 
-          <!-- Need Help / Raise Ticket -->
-          <a routerLink="/customer/complaints" 
-             class="p-4 rounded-2xl bg-gradient-to-br from-amber-950/60 to-slate-900 border border-amber-500/20 hover:border-amber-500/50 flex items-center justify-between transition-all group">
+          <!-- Cheque & Cards Hub -->
+          <a routerLink="/customer/cards-cheques" 
+             class="p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 flex items-center justify-between transition-all group">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
-                <i class="fa-solid fa-headset"></i>
+              <div class="w-8 h-8 rounded-lg bg-indigo-500/15 text-indigo-600 flex items-center justify-center text-sm font-bold shadow-2xs">
+                <i class="fa-solid fa-money-check"></i>
               </div>
               <div>
-                <div class="text-xs font-bold text-white">Grievance Desk</div>
-                <div class="text-[11px] text-slate-400">Raise or Track Support Tickets</div>
+                <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Cheque Book Request</div>
+                <div class="text-[10px] text-slate-500">25/50 Leaf Delivery to Doorstep</div>
               </div>
             </div>
-            <i class="fa-solid fa-chevron-right text-slate-500 text-xs group-hover:text-amber-400"></i>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-xs group-hover:text-amber-600"></i>
           </a>
         </div>
 

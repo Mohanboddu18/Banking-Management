@@ -10,180 +10,238 @@ import { ToastService } from '../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-[#070d1e] flex items-center justify-center p-4 relative overflow-hidden">
-      <!-- Background Ambient Glows -->
-      <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-sky-600/15 blur-[120px] pointer-events-none"></div>
-      <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-indigo-600/15 blur-[120px] pointer-events-none"></div>
-
-      <div class="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#0f1936]/80 backdrop-blur-xl relative z-10">
-        
-        <!-- Left Banner: Godavari Bank Branding & Visuals -->
-        <div class="p-8 md:p-12 flex flex-col justify-between bg-gradient-to-br from-[#002b49] via-[#091f42] to-[#0a1633] border-b md:border-b-0 md:border-r border-white/10">
-          <div>
-            <div class="flex items-center gap-3 mb-6">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-400 to-blue-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-sky-500/30">
-                <i class="fa-solid fa-building-columns"></i>
-              </div>
-              <div>
-                <h1 class="text-2xl font-extrabold text-white tracking-tight">GODAVARI BANK</h1>
-                <p class="text-xs text-sky-400 font-semibold tracking-wider">DIGITAL BANKING PLATFORM</p>
-              </div>
-            </div>
-
-            <h2 class="text-xl md:text-2xl font-bold text-slate-100 leading-snug mb-3">
-              Next-Generation Godavari Digital Banking Simulation
-            </h2>
-            <p class="text-xs text-slate-300 mb-6 leading-relaxed">
-              Experience end-to-end retail banking, multi-stage credit approvals, instant P2P atomic transfers, QR payments, and branch governance.
-            </p>
-
-            <div class="space-y-3">
-              <div class="flex items-center gap-3 text-xs text-slate-300">
-                <div class="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                  <i class="fa-solid fa-check text-[10px]"></i>
-                </div>
-                <span>Pessimistic-Locked Atomic P2P Transfers</span>
-              </div>
-              <div class="flex items-center gap-3 text-xs text-slate-300">
-                <div class="w-6 h-6 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center">
-                  <i class="fa-solid fa-check text-[10px]"></i>
-                </div>
-                <span>QR Merchant Payments & Telecom Recharges</span>
-              </div>
-              <div class="flex items-center gap-3 text-xs text-slate-300">
-                <div class="w-6 h-6 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center">
-                  <i class="fa-solid fa-check text-[10px]"></i>
-                </div>
-                <span>6 Specialized Bank Staff & Manager Portals</span>
-              </div>
-            </div>
+    <div class="min-h-screen bg-[#f8fafc] flex flex-col justify-between">
+      
+      <!-- Dark Top Header (Reference Style) -->
+      <header class="h-16 bg-[#111827] border-b border-slate-800 px-4 md:px-8 flex items-center justify-between shadow-xs">
+        <a routerLink="/" class="flex items-center gap-2.5 no-underline">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-sm font-bold shadow-xs">
+            <i class="fa-solid fa-building-columns"></i>
           </div>
+          <div>
+            <span class="text-base font-extrabold text-white tracking-tight font-display">Godavari Bank</span>
+            <span class="hidden sm:inline-block text-[9px] uppercase tracking-widest font-semibold text-amber-400 ml-2">Digital Platform</span>
+          </div>
+        </a>
 
-          <!-- Quick Preset Switchers -->
-          <div class="mt-8 pt-6 border-t border-white/10">
-            <div class="text-[11px] font-semibold text-sky-300 mb-2 uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-bolt text-amber-400"></i> Demo One-Click Fill
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-              <button (click)="fillPreset('customer1', 'Password@123')" class="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-slate-300 text-left border border-white/5 transition-all">
-                <span class="font-bold text-white block">👤 Customer</span>
-                <span class="text-[10px] text-slate-400">customer1</span>
-              </button>
-              <button (click)="fillPreset('manager', 'Password@123')" class="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-slate-300 text-left border border-white/5 transition-all">
-                <span class="font-bold text-purple-300 block">👔 Bank Manager</span>
-                <span class="text-[10px] text-slate-400">manager</span>
-              </button>
-              <button (click)="fillPreset('cashier', 'Password@123')" class="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-slate-300 text-left border border-white/5 transition-all">
-                <span class="font-bold text-emerald-300 block">💵 Head Cashier</span>
-                <span class="text-[10px] text-slate-400">cashier</span>
-              </button>
-              <button (click)="fillPreset('loan_officer', 'Password@123')" class="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-slate-300 text-left border border-white/5 transition-all">
-                <span class="font-bold text-rose-300 block">📑 Loan Officer</span>
-                <span class="text-[10px] text-slate-400">loan_officer</span>
-              </button>
-            </div>
+        <div class="flex items-center gap-2">
+          <a routerLink="/auth/register" class="text-xs text-slate-300 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-slate-800 transition-colors">
+            Open Account
+          </a>
+          <div class="banner-pill text-[11px] py-1 px-3">
+            <i class="fa-solid fa-shield-halved text-amber-600"></i> Secure 256-Bit
           </div>
         </div>
+      </header>
 
-        <!-- Right Form: Login Controls -->
-        <div class="p-8 md:p-12 flex flex-col justify-center">
-          <h3 class="text-2xl font-bold text-white mb-1">Sign In</h3>
-          <p class="text-xs text-slate-400 mb-6">Enter your credentials to access your Godavari Bank portal.</p>
+      <!-- Main Login Container: 2-Column Split Model with Clean Minimal UI -->
+      <main class="flex-1 flex items-center justify-center p-4 md:p-8 animate-fade-in w-full">
+        <div class="max-w-4xl w-full rounded-2xl bg-white border border-slate-200 shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-12">
+          
+          <!-- LEFT COLUMN: Branding, Value Props & Demo 1-Click Fill -->
+          <div class="md:col-span-6 bg-slate-50 p-8 md:p-10 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200 space-y-8">
+            
+            <!-- Brand Badge & Title -->
+            <div class="space-y-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-600 flex items-center justify-center text-lg font-bold shadow-2xs">
+                  <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <div>
+                  <div class="text-base font-extrabold text-slate-900 tracking-tight leading-tight font-serif">GODAVARI BANK</div>
+                  <div class="text-[9px] uppercase tracking-widest font-bold text-amber-700">DIGITAL BANKING PLATFORM</div>
+                </div>
+              </div>
 
-          <form (ngSubmit)="onSubmit()" class="space-y-4">
-            <div>
-              <label class="bank-label">Username / Account Number / Mobile</label>
-              <div class="relative">
-                <input [(ngModel)]="username" name="username" required type="text" 
-                       placeholder="e.g. customer1 or manager"
-                       class="bank-input pl-10" />
-                <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+              <div class="space-y-2 pt-2">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 font-serif tracking-tight leading-snug">
+                  Next-Generation Godavari Digital Banking Simulation
+                </h1>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Experience end-to-end retail banking, multi-stage credit approvals, instant P2P atomic transfers, QR payments, and branch governance.
+                </p>
+              </div>
+
+              <!-- Feature Checkmarks with Emerald Badges -->
+              <div class="space-y-2.5 pt-2">
+                <div class="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
+                  <div class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] shadow-2xs">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                  <span>Pessimistic-Locked Atomic P2P Transfers</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
+                  <div class="w-4 h-4 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[10px] shadow-2xs">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                  <span>QR Merchant Payments & Telecom Recharges</span>
+                </div>
+                <div class="flex items-center gap-2.5 text-xs text-slate-700 font-medium">
+                  <div class="w-4 h-4 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] shadow-2xs">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                  <span>6 Specialized Bank Staff & Manager Portals</span>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label class="bank-label">Password</label>
-              <div class="relative">
-                <input [(ngModel)]="password" name="password" required [type]="showPassword() ? 'text' : 'password'"
-                       placeholder="••••••••••••"
-                       class="bank-input pl-10 pr-10" />
-                <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
-                <button type="button" (click)="showPassword.set(!showPassword())" 
-                        class="absolute right-3.5 top-3.5 text-slate-500 hover:text-slate-300">
-                  <i class="fa-solid" [ngClass]="showPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
+            <!-- Demo One-Click Fill 2x2 Grid -->
+            <div class="space-y-2.5 pt-4 border-t border-slate-200">
+              <div class="text-[10px] uppercase font-bold text-amber-800 tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt text-amber-500"></i> DEMO ONE-CLICK FILL
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                
+                <!-- Customer Preset -->
+                <button type="button" (click)="fillPreset('customer1', 'Password@123')"
+                        class="p-2.5 rounded-xl bg-white hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 text-left transition-all cursor-pointer group shadow-2xs">
+                  <div class="flex items-center gap-2">
+                    <div class="w-5 h-5 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center text-[10px]">
+                      <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Customer</div>
+                  </div>
+                  <div class="text-[10px] text-slate-500 font-mono mt-0.5">customer1</div>
+                </button>
+
+                <!-- Bank Manager Preset -->
+                <button type="button" (click)="fillPreset('manager', 'Password@123')"
+                        class="p-2.5 rounded-xl bg-white hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 text-left transition-all cursor-pointer group shadow-2xs">
+                  <div class="flex items-center gap-2">
+                    <div class="w-5 h-5 rounded-md bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px]">
+                      <i class="fa-solid fa-building-shield"></i>
+                    </div>
+                    <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Bank Manager</div>
+                  </div>
+                  <div class="text-[10px] text-slate-500 font-mono mt-0.5">manager</div>
+                </button>
+
+                <!-- Head Cashier Preset -->
+                <button type="button" (click)="fillPreset('cashier', 'Password@123')"
+                        class="p-2.5 rounded-xl bg-white hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 text-left transition-all cursor-pointer group shadow-2xs">
+                  <div class="flex items-center gap-2">
+                    <div class="w-5 h-5 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px]">
+                      <i class="fa-solid fa-vault"></i>
+                    </div>
+                    <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Head Cashier</div>
+                  </div>
+                  <div class="text-[10px] text-slate-500 font-mono mt-0.5">cashier</div>
+                </button>
+
+                <!-- Loan Officer Preset -->
+                <button type="button" (click)="fillPreset('loan_officer', 'Password@123')"
+                        class="p-2.5 rounded-xl bg-white hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 text-left transition-all cursor-pointer group shadow-2xs">
+                  <div class="flex items-center gap-2">
+                    <div class="w-5 h-5 rounded-md bg-rose-100 text-rose-700 flex items-center justify-center text-[10px]">
+                      <i class="fa-solid fa-stamp"></i>
+                    </div>
+                    <div class="text-xs font-bold text-slate-900 group-hover:text-amber-950">Loan Officer</div>
+                  </div>
+                  <div class="text-[10px] text-slate-500 font-mono mt-0.5">loan_officer</div>
+                </button>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: Sign In Form -->
+          <div class="md:col-span-6 p-8 md:p-10 flex flex-col justify-center space-y-6 bg-white">
+            
+            <div class="space-y-1">
+              <h2 class="text-2xl font-bold text-slate-900 font-serif tracking-tight">Sign In</h2>
+              <p class="text-xs text-slate-500">Enter your credentials to access your Godavari Bank portal.</p>
+            </div>
+
+            <!-- Login Form -->
+            <form (ngSubmit)="onSubmit()" class="space-y-4">
+              
+              <!-- Username -->
+              <div class="space-y-1.5">
+                <label class="bank-label">Username / Account Number / Mobile</label>
+                <div class="relative">
+                  <input [(ngModel)]="username" name="username" required type="text" 
+                         placeholder="hello@gmail.com"
+                         class="bank-input bank-input-with-icon pl-11 text-xs" />
+                  <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="space-y-1.5">
+                <label class="bank-label">Password</label>
+                <div class="relative">
+                  <input [(ngModel)]="password" name="password" required [type]="showPassword() ? 'text' : 'password'"
+                         placeholder="••••••••"
+                         class="bank-input bank-input-with-icon bank-input-with-icon-right pl-11 pr-11 text-xs" />
+                  <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                  <button type="button" (click)="showPassword.set(!showPassword())" 
+                          class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer">
+                    <i class="fa-solid" [ngClass]="showPassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Options Row -->
+              <div class="flex items-center justify-between text-xs pt-1">
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" class="rounded border-slate-300 text-amber-500 focus:ring-amber-400 cursor-pointer" />
+                  <span class="text-xs text-slate-600">Remember me</span>
+                </label>
+                <button type="button" (click)="openForgotModal()" class="text-amber-600 hover:underline text-xs font-semibold cursor-pointer">
+                  Forgot Password?
                 </button>
               </div>
-            </div>
 
-            <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="rounded bg-slate-800 border-slate-700 text-sky-500" />
-                <span>Remember me</span>
-              </label>
-              <button type="button" (click)="openForgotModal()" class="text-sky-400 hover:text-sky-300 font-semibold hover:underline cursor-pointer">
-                Forgot Password?
+              <!-- Submit Button -->
+              <button type="submit" [disabled]="loading() || !username || !password" 
+                      class="bank-btn-primary w-full py-3 text-xs font-bold rounded-xl cursor-pointer shadow-xs">
+                <i *ngIf="loading()" class="fa-solid fa-circle-notch fa-spin mr-1"></i>
+                <span *ngIf="!loading()">Secure Login <i class="fa-solid fa-arrow-right ml-1"></i></span>
               </button>
+            </form>
+
+            <!-- Register Callout Link -->
+            <div class="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+              Don't have a Godavari Bank account? 
+              <a routerLink="/auth/register" class="text-amber-600 font-bold hover:underline ml-1">Open Bank Account</a>
             </div>
 
-            <button type="submit" [disabled]="loading() || !username || !password" 
-                    class="bank-btn-primary w-full py-3 mt-2 text-base">
-              <i *ngIf="loading()" class="fa-solid fa-circle-notch fa-spin"></i>
-              <span *ngIf="!loading()">Secure Login <i class="fa-solid fa-arrow-right ml-1"></i></span>
-            </button>
-          </form>
-
-          <!-- Register Link -->
-          <div class="mt-8 text-center text-xs text-slate-400">
-            Don't have a Godavari Bank account? 
-            <a routerLink="/auth/register" class="text-sky-400 font-semibold hover:underline ml-1">Open Bank Account</a>
           </div>
+
         </div>
+      </main>
 
-      </div>
-
-      <!-- FORGOT PASSWORD MODAL -->
-      <div *ngIf="showForgotModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-        <div class="max-w-md w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#0f1936] p-6 md:p-8 space-y-5 relative">
+      <!-- Forgot Password Modal -->
+      <div *ngIf="showForgotModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+        <div class="max-w-md w-full rounded-2xl bg-white border border-slate-200 p-6 md:p-8 space-y-4 shadow-2xl">
           
-          <!-- Modal Header -->
-          <div class="flex items-center justify-between border-b border-white/10 pb-4">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white text-lg shadow-lg shadow-amber-500/20">
-                <i class="fa-solid fa-key"></i>
-              </div>
-              <div>
-                <h3 class="text-lg font-bold text-white">Reset Password</h3>
-                <p class="text-xs text-slate-400">Godavari Bank Self-Service Recovery</p>
-              </div>
-            </div>
-            <button type="button" (click)="closeForgotModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition-all">
+          <div class="flex items-center justify-between pb-2.5 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 font-serif">Reset Password</h3>
+            <button type="button" (click)="closeForgotModal()" class="text-slate-400 hover:text-slate-700 cursor-pointer">
               <i class="fa-solid fa-times"></i>
             </button>
           </div>
 
-          <!-- Modal Body -->
-          <form (ngSubmit)="onForgotSubmit()" class="space-y-4 text-left">
+          <form (ngSubmit)="onForgotSubmit()" class="space-y-3 text-left text-xs">
             <div>
-              <label class="bank-label">Username / Account / Mobile / Email *</label>
+              <label class="bank-label">Username / Account / Mobile *</label>
               <div class="relative">
                 <input [(ngModel)]="forgotForm.identifier" name="fIdent" required type="text" 
                        placeholder="e.g. customer1 or 9876543210"
-                       class="bank-input pl-10 text-sm" />
-                <i class="fa-solid fa-id-card absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+                       class="bank-input bank-input-with-icon pl-11 text-xs" />
+                <i class="fa-solid fa-id-card absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
               </div>
             </div>
 
             <div>
-              <div class="flex justify-between items-center mb-1">
-                <label class="bank-label mb-0">Security PIN or PAN (Optional / Demo: 1234)</label>
-              </div>
+              <label class="bank-label">Security PIN (Default: 1234)</label>
               <div class="relative">
                 <input [(ngModel)]="forgotForm.verificationKey" name="fKey" type="text" 
-                       placeholder="e.g. 1234 or ABCDE1234F"
-                       class="bank-input pl-10 text-sm" />
-                <i class="fa-solid fa-shield-halved absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+                       placeholder="e.g. 1234"
+                       class="bank-input bank-input-with-icon pl-11 text-xs" />
+                <i class="fa-solid fa-shield-halved absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
               </div>
-              <p class="text-[11px] text-slate-400 mt-1">Customers can verify via their 4-digit PIN (default <span class="text-sky-400 font-mono">1234</span>).</p>
             </div>
 
             <div>
@@ -191,8 +249,8 @@ import { ToastService } from '../../../core/services/toast.service';
               <div class="relative">
                 <input [(ngModel)]="forgotForm.newPassword" name="fNewPass" required type="password" 
                        placeholder="Enter new password"
-                       class="bank-input pl-10 text-sm" />
-                <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+                       class="bank-input bank-input-with-icon pl-11 text-xs" />
+                <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
               </div>
             </div>
 
@@ -201,26 +259,27 @@ import { ToastService } from '../../../core/services/toast.service';
               <div class="relative">
                 <input [(ngModel)]="forgotForm.confirmPassword" name="fConfPass" required type="password" 
                        placeholder="Confirm new password"
-                       class="bank-input pl-10 text-sm" />
-                <i class="fa-solid fa-check-double absolute left-3.5 top-3.5 text-slate-500 text-sm"></i>
+                       class="bank-input bank-input-with-icon pl-11 text-xs" />
+                <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
               </div>
             </div>
 
-            <div class="flex justify-end gap-3 pt-3 border-t border-white/10">
-              <button type="button" (click)="closeForgotModal()" class="bank-btn-secondary py-2 text-xs">
-                Cancel
-              </button>
-              <button type="submit" [disabled]="forgotLoading() || !forgotForm.identifier || !forgotForm.newPassword || !forgotForm.confirmPassword"
-                      class="bank-btn-primary py-2.5 px-6 text-sm">
+            <div class="flex gap-2.5 pt-3 border-t border-slate-100">
+              <button type="button" (click)="closeForgotModal()" class="bank-btn-secondary flex-1 py-2 text-xs">Cancel</button>
+              <button type="submit" [disabled]="forgotLoading() || !forgotForm.identifier || !forgotForm.newPassword || !forgotForm.confirmPassword" 
+                      class="bank-btn-primary flex-1 py-2 text-xs font-bold">
                 <i *ngIf="forgotLoading()" class="fa-solid fa-circle-notch fa-spin mr-1"></i>
-                <span *ngIf="!forgotLoading()"><i class="fa-solid fa-key mr-1"></i> Reset Password</span>
+                Reset Password
               </button>
             </div>
           </form>
-
         </div>
       </div>
 
+      <!-- Footer -->
+      <footer class="py-4 text-center text-xs text-slate-500 border-t border-slate-200 bg-white">
+        © 2026 Godavari Bank Online Management System. 256-Bit Encrypted.
+      </footer>
     </div>
   `
 })

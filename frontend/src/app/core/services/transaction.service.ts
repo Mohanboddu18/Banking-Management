@@ -11,11 +11,29 @@ export class TransactionService {
   private http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/transactions`;
 
-  deposit(payload: { accountNumber: string; amount: number; description?: string }): Observable<ApiResponse<Transaction>> {
+  deposit(payload: {
+    accountNumber: string;
+    amount: number;
+    description?: string;
+    depositMethod?: string;
+    cardNumber?: string;
+    expiryMonth?: number;
+    expiryYear?: number;
+    cvv?: string;
+    atmPin?: string;
+  }): Observable<ApiResponse<Transaction>> {
     return this.http.post<ApiResponse<Transaction>>(`${this.API_URL}/deposit`, payload);
   }
 
-  withdraw(payload: { accountNumber: string; amount: number; transactionPin: string }): Observable<ApiResponse<Transaction>> {
+  withdraw(payload: {
+    accountNumber: string;
+    amount: number;
+    transactionPin?: string;
+    atmPin?: string;
+    cardNumber?: string;
+    withdrawMethod?: string;
+    description?: string;
+  }): Observable<ApiResponse<Transaction>> {
     return this.http.post<ApiResponse<Transaction>>(`${this.API_URL}/withdraw`, payload);
   }
 

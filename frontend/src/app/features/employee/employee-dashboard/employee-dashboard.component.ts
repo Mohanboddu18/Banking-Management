@@ -8,72 +8,78 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="space-y-6 animate-fade-in max-w-5xl mx-auto">
+    <div class="space-y-6 animate-fade-in max-w-5xl mx-auto py-2">
       
-      <!-- Welcome Banner -->
-      <div class="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0284c7]/30 border border-white/10 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div class="text-xs text-sky-400 font-semibold uppercase tracking-wider mb-1">
-            <i class="fa-solid fa-id-badge"></i> Bank Staff Terminal
-          </div>
-          <h1 class="text-2xl md:text-3xl font-extrabold text-white">
-            Welcome, {{ authService.currentUser()?.fullName }}
-          </h1>
-          <p class="text-xs text-slate-300 mt-1">
-            Employee ID: <span class="font-mono text-sky-300 font-bold">{{ authService.currentUser()?.employeeId }}</span> • Role: <span class="text-slate-200 font-bold">{{ getRoleTitle() }}</span>
-          </p>
+      <!-- Top Banner Pill & Serif Header -->
+      <div class="text-center space-y-2">
+        <div class="banner-pill">
+          <i class="fa-solid fa-id-badge"></i> Staff Operations & Departmental Workstation
         </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          Welcome, {{ authService.currentUser()?.fullName }}
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          Employee ID: <strong class="font-mono text-slate-900">{{ authService.currentUser()?.employeeId }}</strong> • Assigned Role: <strong class="text-amber-700">{{ getRoleTitle() }}</strong>
+        </p>
+      </div>
+
+      <!-- Section Header -->
+      <div class="flex items-center justify-between pb-1">
+        <h2 class="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-amber-500"></i> Departmental Terminals
+        </h2>
+        <span class="pill-dark text-[9px] py-0 px-2.5">Duty Active</span>
       </div>
 
       <!-- Quick Desk Navigation Cards (Filtered by Role) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         
         <!-- Cashier Counter (Only Cashier) -->
-        <a *ngIf="authService.isCashier()" routerLink="/employee/cashier" class="bank-glass p-6 md:p-8 rounded-3xl space-y-4 hover:border-emerald-500/50 transition-all group">
-          <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+        <a *ngIf="authService.isCashier()" routerLink="/employee/cashier" class="bank-card p-6 space-y-4 hover:border-amber-400 transition-all group flex flex-col justify-between shadow-2xs">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center text-xl shadow-2xs">
             <i class="fa-solid fa-cash-register"></i>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-white group-hover:text-emerald-300">Cashier Counter</h3>
-            <p class="text-xs text-slate-400 mt-1">Process walk-in deposits and cash withdrawals (No customer PIN required)</p>
+            <h3 class="text-base font-bold text-slate-900 font-serif group-hover:text-amber-950">Cashier Counter</h3>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Process walk-in deposits and cash withdrawals for account holders</p>
           </div>
-          <span class="text-xs text-emerald-400 font-bold flex items-center gap-1">Open Terminal →</span>
+          <span class="text-xs text-amber-700 font-bold flex items-center gap-1 group-hover:text-amber-900">Open Cashier Terminal →</span>
         </a>
 
         <!-- Loan Officer Desk (Only Loan Officer) -->
-        <a *ngIf="authService.isLoanOfficer()" routerLink="/employee/loans" class="bank-glass p-6 md:p-8 rounded-3xl space-y-4 hover:border-rose-500/50 transition-all group">
-          <div class="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+        <a *ngIf="authService.isLoanOfficer()" routerLink="/employee/loans" class="bank-card p-6 space-y-4 hover:border-amber-400 transition-all group flex flex-col justify-between shadow-2xs">
+          <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center text-xl shadow-2xs">
             <i class="fa-solid fa-file-signature"></i>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-white group-hover:text-rose-300">Loan Verification</h3>
-            <p class="text-xs text-slate-400 mt-1">Review loan applications and submit recommendations</p>
+            <h3 class="text-base font-bold text-slate-900 font-serif group-hover:text-amber-950">Loan Verification</h3>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Review retail credit applications, underwriting checks, and KYC</p>
           </div>
-          <span class="text-xs text-rose-400 font-bold flex items-center gap-1">Review Applications →</span>
+          <span class="text-xs text-amber-700 font-bold flex items-center gap-1 group-hover:text-amber-900">Review Applications →</span>
         </a>
 
         <!-- Cheque Issuance (Only Operations) -->
-        <a *ngIf="authService.isChequeOfficer()" routerLink="/employee/cheques" class="bank-glass p-6 md:p-8 rounded-3xl space-y-4 hover:border-indigo-500/50 transition-all group">
-          <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+        <a *ngIf="authService.isChequeOfficer()" routerLink="/employee/cheques" class="bank-card p-6 space-y-4 hover:border-amber-400 transition-all group flex flex-col justify-between shadow-2xs">
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center text-xl shadow-2xs">
             <i class="fa-solid fa-money-check"></i>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-white group-hover:text-indigo-300">Cheque Dispatch</h3>
-            <p class="text-xs text-slate-400 mt-1">Approve leaves and assign leaf serial ranges</p>
+            <h3 class="text-base font-bold text-slate-900 font-serif group-hover:text-amber-950">Cheque Dispatch</h3>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Approve cheque book requisition slips and dispatch leaf parcels</p>
           </div>
-          <span class="text-xs text-indigo-400 font-bold flex items-center gap-1">Manage Cheques →</span>
+          <span class="text-xs text-amber-700 font-bold flex items-center gap-1 group-hover:text-amber-900">Manage Cheques →</span>
         </a>
 
         <!-- Customer Support Desk (Only Support Officer) -->
-        <a *ngIf="authService.isSupportOfficer()" routerLink="/employee/support" class="bank-glass p-6 md:p-8 rounded-3xl space-y-4 hover:border-amber-500/50 transition-all group">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+        <a *ngIf="authService.isSupportOfficer()" routerLink="/employee/support" class="bank-card p-6 space-y-4 hover:border-amber-400 transition-all group flex flex-col justify-between shadow-2xs">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center text-xl shadow-2xs">
             <i class="fa-solid fa-headset"></i>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-white group-hover:text-amber-300">Grievance Desk</h3>
-            <p class="text-xs text-slate-400 mt-1">Resolve customer disputes and inquiries</p>
+            <h3 class="text-base font-bold text-slate-900 font-serif group-hover:text-amber-950">Grievance Desk</h3>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Resolve customer disputes, failed transaction queries, and tickets</p>
           </div>
-          <span class="text-xs text-amber-400 font-bold flex items-center gap-1">Support Console →</span>
+          <span class="text-xs text-amber-700 font-bold flex items-center gap-1 group-hover:text-amber-900">Support Console →</span>
         </a>
 
       </div>

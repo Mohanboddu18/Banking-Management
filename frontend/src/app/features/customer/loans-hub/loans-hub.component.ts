@@ -13,83 +13,89 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
   standalone: true,
   imports: [CommonModule, FormsModule, InrCurrencyPipe, PinModalComponent],
   template: `
-    <div class="space-y-8 animate-fade-in max-w-5xl mx-auto">
+    <div class="space-y-6 animate-fade-in max-w-5xl mx-auto py-2">
       
-      <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white flex items-center gap-2.5">
-            <i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> Loans & Credit Facilities Hub
-          </h1>
-          <p class="text-xs text-slate-400">Apply for retail loans, simulate amortization schedules, pay single EMIs or settle all in 1-click</p>
+      <!-- Top Banner Pill & Serif Header -->
+      <div class="text-center space-y-2">
+        <div class="banner-pill">
+          <i class="fa-solid fa-hand-holding-dollar"></i> Retail Credit & Instant Loan Sanctions
         </div>
-        <button (click)="showApplyModal.set(true)" class="bank-btn-primary text-xs">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          Loans & Credit Lines
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          Simulate monthly EMI payments, apply for personal or home loans, and pay installments with 1-click settlement.
+        </p>
+      </div>
+
+      <!-- Action Sub-Header -->
+      <div class="flex items-center justify-between pb-1">
+        <h2 class="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+          <i class="fa-solid fa-calculator text-amber-500"></i> Interactive EMI Simulator
+        </h2>
+        <button (click)="showApplyModal.set(true)" class="bank-btn-primary text-xs py-1.5 px-3.5 font-bold shadow-xs">
           <i class="fa-solid fa-plus"></i> Apply for Loan
         </button>
       </div>
 
       <!-- SECTION 1: INTERACTIVE EMI CALCULATOR -->
-      <div class="bank-glass p-6 md:p-8 rounded-3xl space-y-6">
-        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-calculator text-sky-400"></i> Interactive EMI & Amortization Calculator
-        </h2>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="bank-card p-6 space-y-4">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           <!-- Sliders Form (2 Cols) -->
-          <div class="lg:col-span-2 space-y-5">
+          <div class="lg:col-span-2 space-y-4">
             <div>
-              <div class="flex justify-between text-xs font-semibold mb-2">
-                <span class="text-slate-400">Loan Amount</span>
-                <span class="text-sky-400 font-bold text-sm">{{ calcPrincipal | inrCurrency }}</span>
+              <div class="flex justify-between text-xs mb-1.5 font-semibold">
+                <span class="text-slate-600">Loan Amount</span>
+                <span class="text-amber-600 font-extrabold font-mono text-sm">{{ calcPrincipal | inrCurrency }}</span>
               </div>
               <input type="range" [(ngModel)]="calcPrincipal" (ngModelChange)="recalculateEmi()" 
                      min="25000" max="5000000" step="25000" 
-                     class="w-full accent-sky-500 bg-slate-800 rounded-lg cursor-pointer" />
+                     class="w-full accent-amber-500 bg-slate-200 rounded-lg cursor-pointer h-2" />
             </div>
 
             <div>
-              <div class="flex justify-between text-xs font-semibold mb-2">
-                <span class="text-slate-400">Annual Interest Rate</span>
-                <span class="text-emerald-400 font-bold text-sm">{{ calcRate }}% p.a.</span>
+              <div class="flex justify-between text-xs mb-1.5 font-semibold">
+                <span class="text-slate-600">Interest Rate</span>
+                <span class="text-emerald-700 font-extrabold font-mono text-sm">{{ calcRate }}% p.a.</span>
               </div>
               <input type="range" [(ngModel)]="calcRate" (ngModelChange)="recalculateEmi()" 
                      min="7.5" max="18.0" step="0.1" 
-                     class="w-full accent-emerald-500 bg-slate-800 rounded-lg cursor-pointer" />
+                     class="w-full accent-amber-500 bg-slate-200 rounded-lg cursor-pointer h-2" />
             </div>
 
             <div>
-              <div class="flex justify-between text-xs font-semibold mb-2">
-                <span class="text-slate-400">Loan Tenure</span>
-                <span class="text-amber-400 font-bold text-sm">{{ calcTenure }} Months ({{ (calcTenure/12).toFixed(1) }} Yrs)</span>
+              <div class="flex justify-between text-xs mb-1.5 font-semibold">
+                <span class="text-slate-600">Tenure</span>
+                <span class="text-slate-900 font-extrabold font-mono text-sm">{{ calcTenure }} Months ({{ (calcTenure/12).toFixed(1) }} Yrs)</span>
               </div>
               <input type="range" [(ngModel)]="calcTenure" (ngModelChange)="recalculateEmi()" 
                      min="6" max="240" step="6" 
-                     class="w-full accent-amber-500 bg-slate-800 rounded-lg cursor-pointer" />
+                     class="w-full accent-amber-500 bg-slate-200 rounded-lg cursor-pointer h-2" />
             </div>
           </div>
 
           <!-- Calculated Output Box -->
-          <div class="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-sky-950/60 border border-sky-500/30 flex flex-col justify-between text-center">
+          <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between text-center space-y-3 shadow-2xs">
             <div>
-              <div class="text-xs text-slate-400 uppercase font-semibold">Monthly EMI Amount</div>
-              <div class="text-3xl font-extrabold text-sky-400 mt-2 font-mono">
+              <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Estimated Monthly EMI</div>
+              <div class="text-2xl font-extrabold text-slate-950 mt-1 font-display">
                 {{ emiResult()?.monthlyEmi || 0 | inrCurrency }}
               </div>
             </div>
 
-            <div class="space-y-2 py-4 border-y border-white/5 text-xs text-slate-300 text-left">
+            <div class="space-y-1.5 py-2.5 border-y border-slate-200 text-xs text-slate-600 text-left">
               <div class="flex justify-between">
-                <span class="text-slate-400">Total Interest:</span>
-                <span class="font-bold text-rose-300">{{ emiResult()?.totalInterest || 0 | inrCurrency }}</span>
+                <span class="text-slate-500">Total Interest:</span>
+                <span class="font-mono text-slate-900 font-bold">{{ emiResult()?.totalInterest || 0 | inrCurrency }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-slate-400">Total Payable:</span>
-                <span class="font-bold text-white">{{ emiResult()?.totalPayable || 0 | inrCurrency }}</span>
+                <span class="text-slate-500">Total Payable:</span>
+                <span class="font-mono text-slate-950 font-extrabold">{{ emiResult()?.totalPayable || 0 | inrCurrency }}</span>
               </div>
             </div>
 
-            <button (click)="openApplyWithCalculator()" class="bank-btn-primary w-full text-xs py-2.5">
+            <button (click)="openApplyWithCalculator()" class="bank-btn-primary w-full text-xs py-2 font-bold">
               Apply with this Plan →
             </button>
           </div>
@@ -98,21 +104,24 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
       </div>
 
       <!-- SECTION 2: MY ACTIVE & APPLIED LOANS -->
-      <div class="space-y-4">
-        <h2 class="text-lg font-bold text-white flex items-center gap-2">
-          <i class="fa-solid fa-list-check text-rose-400"></i> My Loan Portfolio
-        </h2>
-
-        <div *ngIf="myLoans().length === 0" class="bank-glass p-8 rounded-2xl text-center text-xs text-slate-400">
-          No loan applications or active loans found. Use the calculator above to apply for instant funds!
+      <div class="space-y-3 pt-2">
+        <div class="flex items-center justify-between pb-1">
+          <h2 class="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-amber-500"></i> My Loan Portfolio
+          </h2>
+          <span class="pill-dark text-[9px] py-0 px-2.5">{{ myLoans().length }} Active / Applied</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div *ngFor="let loan of myLoans()" class="bank-glass p-6 rounded-3xl space-y-4 border border-white/10">
+        <div *ngIf="myLoans().length === 0" class="bank-card p-6 text-center text-xs text-slate-500">
+          No loan applications or active credit facilities found.
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div *ngFor="let loan of myLoans()" class="bank-card p-5 space-y-3.5">
             <div class="flex justify-between items-start">
               <div>
-                <span class="badge badge-info text-[10px]">{{ loan.loanTypeName }}</span>
-                <div class="font-mono text-xs text-slate-400 mt-1 font-semibold">{{ loan.loanAccountNumber }}</div>
+                <span class="pill-dark">{{ loan.loanTypeName }}</span>
+                <div class="font-mono text-xs text-slate-500 mt-1 font-bold">{{ loan.loanAccountNumber }}</div>
               </div>
               <span class="badge" [ngClass]="{
                 'badge-success': loan.status === 'ACTIVE',
@@ -124,41 +133,40 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
               </span>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 py-3 border-y border-white/5 text-xs">
+            <div class="grid grid-cols-2 gap-2.5 py-3 border-y border-slate-100 text-xs bg-slate-50/50 p-2.5 rounded-xl">
               <div>
-                <span class="text-slate-400 block text-[11px]">Sanctioned Amount</span>
-                <span class="font-bold text-white text-sm">{{ (loan.approvedAmount || loan.requestedAmount) | inrCurrency }}</span>
+                <span class="text-slate-500 block text-[10px] font-semibold">Sanctioned Amount</span>
+                <span class="font-bold text-slate-900">{{ (loan.approvedAmount || loan.requestedAmount) | inrCurrency }}</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[11px]">Monthly EMI</span>
-                <span class="font-bold text-sky-400 text-sm">{{ loan.monthlyEmi | inrCurrency }}</span>
+                <span class="text-slate-500 block text-[10px] font-semibold">Monthly EMI</span>
+                <span class="font-bold text-amber-600 font-mono">{{ loan.monthlyEmi | inrCurrency }}</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[11px]">Outstanding Principal</span>
-                <span class="font-bold text-rose-400">{{ loan.remainingPrincipal | inrCurrency }}</span>
+                <span class="text-slate-500 block text-[10px] font-semibold">Principal Left</span>
+                <span class="font-bold text-rose-600 font-mono">{{ loan.remainingPrincipal | inrCurrency }}</span>
               </div>
               <div>
-                <span class="text-slate-400 block text-[11px]">Remaining EMIs</span>
-                <span class="font-bold text-slate-200">{{ loan.remainingEmis }} / {{ loan.tenureMonths }}</span>
+                <span class="text-slate-500 block text-[10px] font-semibold">Remaining EMIs</span>
+                <span class="font-bold text-slate-800">{{ loan.remainingEmis }} / {{ loan.tenureMonths }}</span>
               </div>
             </div>
 
             <div class="space-y-2">
               <div class="flex gap-2">
-                <button (click)="viewRepaymentSchedule(loan)" class="bank-btn-secondary flex-1 text-xs py-2">
-                  <i class="fa-solid fa-calendar-days text-sky-400"></i> EMI Schedule
+                <button (click)="viewRepaymentSchedule(loan)" class="bank-btn-secondary flex-1 text-xs py-1.5 font-semibold">
+                  <i class="fa-solid fa-calendar-days text-amber-500"></i> View Schedule
                 </button>
-                <button *ngIf="loan.status === 'ACTIVE'" (click)="openEmiPayment(loan, 'SINGLE')" class="bank-btn-primary flex-1 text-xs py-2">
-                  <i class="fa-solid fa-credit-card"></i> Pay 1 EMI ({{ loan.monthlyEmi | inrCurrency }})
+                <button *ngIf="loan.status === 'ACTIVE'" (click)="openEmiPayment(loan, 'SINGLE')" class="bank-btn-primary flex-1 text-xs py-1.5 font-bold">
+                  Pay 1 EMI ({{ loan.monthlyEmi | inrCurrency }})
                 </button>
               </div>
 
               <!-- Pay All EMIs in Single Payment Button -->
               <button *ngIf="loan.status === 'ACTIVE' && loan.remainingEmis > 0" 
                       (click)="openEmiPayment(loan, 'ALL')" 
-                      class="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-950/40 flex items-center justify-center gap-2 transition-all">
-                <i class="fa-solid fa-bolt-lightning text-amber-300"></i>
-                Pay All {{ loan.remainingEmis }} EMIs in 1-Click ({{ getTotalPayable(loan) | inrCurrency }})
+                      class="bank-btn-success w-full py-1.5 text-xs font-bold shadow-2xs">
+                Pay All {{ loan.remainingEmis }} EMIs ({{ getTotalPayable(loan) | inrCurrency }})
               </button>
             </div>
           </div>
@@ -166,57 +174,57 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
       </div>
 
       <!-- Loan Application Modal -->
-      <div *ngIf="showApplyModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-        <div class="bank-glass p-6 md:p-8 rounded-3xl max-w-lg w-full shadow-2xl border border-sky-500/30">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-white">Apply for a Bank Loan</h3>
-            <button (click)="showApplyModal.set(false)" class="text-slate-400 hover:text-white">
-              <i class="fa-solid fa-xmark"></i>
+      <div *ngIf="showApplyModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+        <div class="bank-card p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 font-serif">Apply for a Loan</h3>
+            <button (click)="showApplyModal.set(false)" class="text-slate-400 hover:text-slate-700 cursor-pointer">
+              <i class="fa-solid fa-times"></i>
             </button>
           </div>
 
-          <form (ngSubmit)="submitLoanApplication()" class="space-y-4">
+          <form (ngSubmit)="submitLoanApplication()" class="space-y-3 text-xs">
             <div>
-              <label class="bank-label">Select Loan Type *</label>
-              <select [(ngModel)]="applyForm.loanTypeCode" name="type" class="bank-input">
+              <label class="bank-label">Loan Type *</label>
+              <select [(ngModel)]="applyForm.loanTypeCode" name="type" class="bank-input text-xs font-semibold">
                 <option *ngFor="let t of loanTypes()" [value]="t.code">{{ t.name }} ({{ t.interestRate }}% p.a.)</option>
               </select>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-2.5">
               <div>
-                <label class="bank-label">Requested Amount (₹) *</label>
-                <input [(ngModel)]="applyForm.requestedAmount" name="reqAmt" required type="number" class="bank-input" />
+                <label class="bank-label">Amount (₹) *</label>
+                <input [(ngModel)]="applyForm.requestedAmount" name="reqAmt" required type="number" class="bank-input text-xs font-bold" />
               </div>
               <div>
                 <label class="bank-label">Tenure (Months) *</label>
-                <input [(ngModel)]="applyForm.tenureMonths" name="tenure" required type="number" class="bank-input" />
+                <input [(ngModel)]="applyForm.tenureMonths" name="tenure" required type="number" class="bank-input text-xs font-bold" />
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-2.5">
               <div>
                 <label class="bank-label">Employment Type *</label>
-                <select [(ngModel)]="applyForm.employmentType" name="empType" class="bank-input">
-                  <option value="Salaried">Salaried (Private / Govt)</option>
-                  <option value="Self Employed">Self Employed / Business</option>
-                  <option value="Professional">Doctor / Lawyer / CA</option>
+                <select [(ngModel)]="applyForm.employmentType" name="empType" class="bank-input text-xs font-semibold">
+                  <option value="Salaried">Salaried</option>
+                  <option value="Self Employed">Self Employed</option>
+                  <option value="Professional">Professional</option>
                 </select>
               </div>
               <div>
                 <label class="bank-label">Monthly Income (₹) *</label>
-                <input [(ngModel)]="applyForm.monthlyIncome" name="income" required type="number" class="bank-input" />
+                <input [(ngModel)]="applyForm.monthlyIncome" name="income" required type="number" class="bank-input text-xs font-bold" />
               </div>
             </div>
 
             <div>
-              <label class="bank-label">Loan Purpose *</label>
-              <input [(ngModel)]="applyForm.purpose" name="purpose" required type="text" placeholder="e.g. Home Renovation, Education, Vehicle" class="bank-input" />
+              <label class="bank-label">Purpose of Loan</label>
+              <input [(ngModel)]="applyForm.purpose" name="purpose" required type="text" placeholder="e.g. Home Renovation, Education" class="bank-input text-xs" />
             </div>
 
-            <div class="flex gap-3 pt-3">
-              <button type="button" (click)="showApplyModal.set(false)" class="bank-btn-secondary flex-1">Cancel</button>
-              <button type="submit" [disabled]="!applyForm.requestedAmount || !applyForm.tenureMonths" class="bank-btn-primary flex-1">
+            <div class="flex gap-2.5 pt-2 border-t border-slate-100">
+              <button type="button" (click)="showApplyModal.set(false)" class="bank-btn-secondary flex-1 py-2 text-xs">Cancel</button>
+              <button type="submit" [disabled]="!applyForm.requestedAmount || !applyForm.tenureMonths" class="bank-btn-primary flex-1 py-2 text-xs font-bold">
                 Submit Application
               </button>
             </div>
@@ -225,15 +233,15 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
       </div>
 
       <!-- Amortization Repayment Schedule Modal -->
-      <div *ngIf="selectedLoanSchedule()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-        <div class="bank-glass p-6 md:p-8 rounded-3xl max-w-2xl w-full shadow-2xl border border-white/10 max-h-[85vh] flex flex-col">
-          <div class="flex justify-between items-center pb-4 border-b border-white/10 mb-4">
+      <div *ngIf="selectedLoanSchedule()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+        <div class="bank-card p-6 rounded-2xl max-w-xl w-full shadow-2xl max-h-[85vh] flex flex-col space-y-4">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-100">
             <div>
-              <h3 class="text-lg font-bold text-white">EMI Repayment Schedule</h3>
-              <p class="text-xs text-slate-400 font-mono">Loan Ref: {{ selectedLoanSchedule()?.loanAccountNumber }}</p>
+              <h3 class="text-base font-bold text-slate-900 font-serif">Repayment Amortization Schedule</h3>
+              <p class="text-[11px] text-slate-500 font-mono">{{ selectedLoanSchedule()?.loanAccountNumber }}</p>
             </div>
-            <button (click)="selectedLoanSchedule.set(null)" class="text-slate-400 hover:text-white">
-              <i class="fa-solid fa-xmark text-lg"></i>
+            <button (click)="selectedLoanSchedule.set(null)" class="text-slate-400 hover:text-slate-700 cursor-pointer">
+              <i class="fa-solid fa-times"></i>
             </button>
           </div>
 
@@ -243,7 +251,7 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
                 <tr>
                   <th>#</th>
                   <th>Due Date</th>
-                  <th>EMI Amount</th>
+                  <th>EMI</th>
                   <th>Principal</th>
                   <th>Interest</th>
                   <th>Status</th>
@@ -252,10 +260,10 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
               <tbody>
                 <tr *ngFor="let rep of repayments()">
                   <td class="font-bold text-xs">{{ rep.installmentNumber }}</td>
-                  <td class="text-xs text-slate-300">{{ rep.dueDate | date:'mediumDate' }}</td>
-                  <td class="font-bold text-xs text-sky-400">{{ rep.emiAmount | inrCurrency }}</td>
-                  <td class="text-xs text-slate-300">{{ rep.principalComponent | inrCurrency }}</td>
-                  <td class="text-xs text-rose-300">{{ rep.interestComponent | inrCurrency }}</td>
+                  <td class="text-xs text-slate-500">{{ rep.dueDate | date:'mediumDate' }}</td>
+                  <td class="font-bold text-xs text-amber-600 font-mono">{{ rep.emiAmount | inrCurrency }}</td>
+                  <td class="text-xs text-slate-700 font-mono">{{ rep.principalComponent | inrCurrency }}</td>
+                  <td class="text-xs text-rose-600 font-mono">{{ rep.interestComponent | inrCurrency }}</td>
                   <td>
                     <span class="badge" [ngClass]="rep.status === 'PAID' ? 'badge-success' : 'badge-warning'">
                       {{ rep.status }}
@@ -269,46 +277,46 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
       </div>
 
       <!-- Pay EMI / Pay All Confirmation Modal -->
-      <div *ngIf="loanToPay()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-        <div class="bank-glass p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl border border-emerald-500/30 space-y-5">
-          <div class="flex justify-between items-start pb-3 border-b border-white/10">
+      <div *ngIf="loanToPay()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+        <div class="bank-card p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
+          <div class="flex justify-between items-start pb-2 border-b border-slate-100">
             <div>
-              <h3 class="text-lg font-bold text-white">
-                {{ payMode === 'SINGLE' ? 'Pay Monthly EMI' : 'Settle & Close Full Loan' }}
+              <h3 class="text-base font-bold text-slate-900 font-serif">
+                {{ payMode === 'SINGLE' ? 'Pay Monthly EMI' : 'Settle Full Loan' }}
               </h3>
-              <p class="text-xs text-slate-400 font-mono">{{ loanToPay()?.loanAccountNumber }}</p>
+              <p class="text-xs text-slate-500 font-mono">{{ loanToPay()?.loanAccountNumber }}</p>
             </div>
-            <button (click)="loanToPay.set(null)" class="text-slate-400 hover:text-white">
-              <i class="fa-solid fa-xmark"></i>
+            <button (click)="loanToPay.set(null)" class="text-slate-400 hover:text-slate-700 cursor-pointer">
+              <i class="fa-solid fa-times"></i>
             </button>
           </div>
 
-          <div class="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2 text-xs">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
             <div class="flex justify-between">
-              <span class="text-slate-400">Payment Type:</span>
-              <span class="font-bold text-white">{{ payMode === 'SINGLE' ? '1 Month Installment' : 'Full Foreclosure (' + loanToPay()?.remainingEmis + ' EMIs)' }}</span>
+              <span class="text-slate-500">Payment Type:</span>
+              <span class="font-semibold text-slate-800">{{ payMode === 'SINGLE' ? '1 Month Installment' : 'Full Foreclosure' }}</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-400">Total Debit Amount:</span>
-              <span class="font-bold text-emerald-400 text-sm font-mono">
+              <span class="text-slate-500">Total Amount:</span>
+              <span class="font-extrabold text-emerald-600 font-mono">
                 {{ (payMode === 'SINGLE' ? loanToPay()?.monthlyEmi : getTotalPayable(loanToPay())) | inrCurrency }}
               </span>
             </div>
           </div>
 
-          <div>
-            <label class="bank-label">Select Account to Debit</label>
-            <select [(ngModel)]="selectedAccountNo" class="bank-input">
+          <div class="text-xs">
+            <label class="bank-label">Debit From Account</label>
+            <select [(ngModel)]="selectedAccountNo" class="bank-input text-xs font-semibold">
               <option *ngFor="let acc of accounts()" [value]="acc.accountNumber">
-                {{ acc.accountNumber }} — Balance: {{ acc.balance | inrCurrency }}
+                {{ acc.accountNumber }} (Available: {{ acc.balance | inrCurrency }})
               </option>
             </select>
           </div>
 
-          <div class="flex gap-3 pt-2">
-            <button type="button" (click)="loanToPay.set(null)" class="bank-btn-secondary flex-1 text-xs">Cancel</button>
-            <button type="button" (click)="openPinVerification()" class="bank-btn-success flex-1 text-xs font-bold py-2.5">
-              Proceed to PIN Verification →
+          <div class="flex gap-2 pt-2 border-t border-slate-100">
+            <button type="button" (click)="loanToPay.set(null)" class="bank-btn-secondary flex-1 py-2 text-xs">Cancel</button>
+            <button type="button" (click)="openPinVerification()" class="bank-btn-primary flex-1 py-2 text-xs font-bold">
+              Authorize PIN →
             </button>
           </div>
         </div>

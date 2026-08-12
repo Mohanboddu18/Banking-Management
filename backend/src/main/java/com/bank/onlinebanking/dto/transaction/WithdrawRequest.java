@@ -17,5 +17,9 @@ public class WithdrawRequest {
     private BigDecimal amount;
 
     private String transactionPin;
+    private String atmPin;
+    private String cardNumber;
+    private String withdrawMethod; // e.g. "ATM_CARD", "ACCOUNT"
     private String description;
 }
+

@@ -11,61 +11,73 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
   standalone: true,
   imports: [CommonModule, FormsModule, InrCurrencyPipe],
   template: `
-    <div class="max-w-5xl mx-auto space-y-6 animate-fade-in">
-      <div>
-        <h1 class="text-2xl font-bold text-white flex items-center gap-2.5">
-          <i class="fa-solid fa-file-signature text-rose-400"></i> Loan Officer Verification Desk
+    <div class="max-w-5xl mx-auto space-y-6 animate-fade-in py-2">
+      
+      <!-- Top Banner Pill & Serif Header -->
+      <div class="text-center space-y-2">
+        <div class="banner-pill">
+          <i class="fa-solid fa-file-signature"></i> Credit Underwriting & Appraisal Desk
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          Loan Verification Desk
         </h1>
-        <p class="text-xs text-slate-400">Review pending customer loan applications, evaluate income, and submit recommendations to Branch Manager</p>
+        <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          Review customer loan proposals, verify salary slips & income documents, and issue credit recommendations.
+        </p>
       </div>
 
-      <div class="bank-glass p-6 md:p-8 rounded-3xl space-y-4">
-        <h3 class="text-base font-bold text-white">Pending Review Applications ({{ pendingLoans().length }})</h3>
+      <div class="bank-card p-6 space-y-4">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+          <h3 class="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-amber-500"></i> Applications Awaiting Underwriting
+          </h3>
+          <span class="pill-dark text-[9px] py-0 px-2.5">{{ pendingLoans().length }} Pending</span>
+        </div>
 
-        <div *ngIf="pendingLoans().length === 0" class="py-12 text-center text-xs text-slate-400">
-          No pending loan applications waiting for officer review.
+        <div *ngIf="pendingLoans().length === 0" class="py-8 text-center text-xs text-slate-500">
+          No pending loan applications waiting for review.
         </div>
 
         <div class="space-y-4">
-          <div *ngFor="let l of pendingLoans()" class="p-6 rounded-2xl bg-slate-800/40 border border-white/5 space-y-4">
+          <div *ngFor="let l of pendingLoans()" class="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-3.5 shadow-2xs">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h4 class="text-base font-bold text-white">{{ l.customerName }} ({{ l.customerId }})</h4>
-                <div class="text-xs text-slate-400 font-mono">Ref: {{ l.loanAccountNumber }} • {{ l.loanTypeName }}</div>
+                <h4 class="text-sm font-bold text-slate-900 font-serif">{{ l.customerName }}</h4>
+                <div class="text-xs text-slate-500 font-mono font-bold">{{ l.loanAccountNumber }} • {{ l.loanTypeName }}</div>
               </div>
-              <span class="badge badge-warning text-xs font-bold">{{ l.status }}</span>
+              <span class="badge badge-warning text-[9px]">{{ l.status }}</span>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3 border-y border-white/5 text-xs">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 py-3 border-y border-slate-200 text-xs bg-white p-3 rounded-xl shadow-2xs">
               <div>
-                <span class="text-slate-500 block text-[10px] uppercase">Requested</span>
-                <span class="font-bold text-white text-sm">{{ l.requestedAmount | inrCurrency }}</span>
+                <span class="text-slate-500 block text-[10px] font-semibold">Requested Principal</span>
+                <span class="font-extrabold text-slate-900 font-mono">{{ l.requestedAmount | inrCurrency }}</span>
               </div>
               <div>
-                <span class="text-slate-500 block text-[10px] uppercase">Tenure</span>
-                <span class="font-bold text-slate-200">{{ l.tenureMonths }} Months</span>
+                <span class="text-slate-500 block text-[10px] font-semibold">Tenure</span>
+                <span class="font-bold text-slate-800">{{ l.tenureMonths }} Months</span>
               </div>
               <div>
-                <span class="text-slate-500 block text-[10px] uppercase">Monthly Income</span>
-                <span class="font-bold text-emerald-400">{{ l.monthlyIncome | inrCurrency }}</span>
+                <span class="text-slate-500 block text-[10px] font-semibold">Monthly Income</span>
+                <span class="font-extrabold text-emerald-600 font-mono">{{ l.monthlyIncome | inrCurrency }}</span>
               </div>
               <div>
-                <span class="text-slate-500 block text-[10px] uppercase">Employment</span>
-                <span class="font-bold text-sky-400">{{ l.employmentType }}</span>
+                <span class="text-slate-500 block text-[10px] font-semibold">Employment</span>
+                <span class="font-bold text-amber-700">{{ l.employmentType }}</span>
               </div>
             </div>
 
-            <div class="text-xs text-slate-300">
-              <strong class="text-slate-400">Purpose:</strong> {{ l.purpose }}
+            <div class="text-xs text-slate-700">
+              <strong class="text-slate-900">Declared Purpose:</strong> {{ l.purpose }}
             </div>
 
-            <div *ngIf="l.officerRecommendation" class="p-3 rounded-xl bg-sky-950/40 border border-sky-500/20 text-xs text-sky-200">
-              <strong>Previous Recommendation:</strong> {{ l.officerRecommendation }}
+            <div *ngIf="l.officerRecommendation" class="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-950">
+              <strong class="text-[11px] text-amber-800">Existing Recommendation:</strong> {{ l.officerRecommendation }}
             </div>
 
-            <div class="flex justify-end pt-2">
-              <button (click)="openReviewModal(l)" class="bank-btn-primary text-xs">
-                Submit Recommendation →
+            <div class="flex justify-end pt-1">
+              <button (click)="openReviewModal(l)" class="bank-btn-primary text-xs py-1.5 px-4 font-bold shadow-xs">
+                Review & Recommend →
               </button>
             </div>
           </div>
@@ -73,34 +85,34 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
       </div>
 
       <!-- Review Recommendation Modal -->
-      <div *ngIf="selectedLoan()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-        <div class="bank-glass p-6 md:p-8 rounded-3xl max-w-md w-full shadow-2xl border border-rose-500/30">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-white">Officer Recommendation</h3>
-            <button (click)="selectedLoan.set(null)" class="text-slate-400 hover:text-white">
-              <i class="fa-solid fa-xmark"></i>
+      <div *ngIf="selectedLoan()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+        <div class="bank-card p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 font-serif">Underwriter Recommendation</h3>
+            <button (click)="selectedLoan.set(null)" class="text-slate-400 hover:text-slate-700 cursor-pointer">
+              <i class="fa-solid fa-times"></i>
             </button>
           </div>
 
-          <form (ngSubmit)="submitReview()" class="space-y-4">
+          <form (ngSubmit)="submitReview()" class="space-y-3 text-xs">
             <div>
               <label class="bank-label">Recommendation Decision *</label>
-              <select [(ngModel)]="recommendation" name="rec" class="bank-input">
-                <option value="RECOMMENDED FOR APPROVAL">Recommended for Full Approval</option>
+              <select [(ngModel)]="recommendation" name="rec" class="bank-input text-xs font-semibold">
+                <option value="RECOMMENDED FOR APPROVAL">Recommended for Approval</option>
                 <option value="RECOMMENDED WITH REDUCED AMOUNT">Recommended with Reduced Amount</option>
-                <option value="RECOMMENDED FOR REJECTION">Recommended for Rejection (High Risk / Low Income)</option>
+                <option value="RECOMMENDED FOR REJECTION">Recommended for Rejection</option>
               </select>
             </div>
 
             <div>
-              <label class="bank-label">Officer Verification Notes *</label>
-              <textarea [(ngModel)]="notes" name="notes" required rows="3" placeholder="Verified salary slips, credit score, and KYC documents..." class="bank-input"></textarea>
+              <label class="bank-label">Verification Notes & Findings *</label>
+              <textarea [(ngModel)]="notes" name="notes" required rows="3" placeholder="Verified salary slips, credit score, and income documents..." class="bank-input text-xs"></textarea>
             </div>
 
-            <div class="flex gap-3 pt-3">
-              <button type="button" (click)="selectedLoan.set(null)" class="bank-btn-secondary flex-1">Cancel</button>
-              <button type="submit" [disabled]="!notes" class="bank-btn-primary flex-1">
-                Forward to Manager
+            <div class="flex gap-2.5 pt-2 border-t border-slate-100">
+              <button type="button" (click)="selectedLoan.set(null)" class="bank-btn-secondary flex-1 py-2 text-xs">Cancel</button>
+              <button type="submit" [disabled]="!notes" class="bank-btn-primary flex-1 py-2 text-xs font-bold">
+                Submit Recommendation
               </button>
             </div>
           </form>

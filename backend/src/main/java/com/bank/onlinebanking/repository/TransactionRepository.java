@@ -30,7 +30,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
            "LEFT JOIN t.toAccount ta " +
            "WHERE (fa.accountNumber = :accountNo OR ta.accountNumber = :accountNo) " +
            "AND t.createdAt BETWEEN :startDate AND :endDate " +
-           "ORDER BY t.createdAt ASC")
+           "ORDER BY t.createdAt DESC")
     List<Transaction> findStatementTransactions(@Param("accountNo") String accountNo,
                                                 @Param("startDate") LocalDateTime startDate,
                                                 @Param("endDate") LocalDateTime endDate);

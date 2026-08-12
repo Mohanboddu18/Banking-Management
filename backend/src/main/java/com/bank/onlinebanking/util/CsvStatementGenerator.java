@@ -26,7 +26,13 @@ public class CsvStatementGenerator {
                 ).build())) {
 
             if (statement.getTransactions() != null) {
-                for (TransactionResponse tx : statement.getTransactions()) {
+                java.util.List<TransactionResponse> sortedTxns = new java.util.ArrayList<>(statement.getTransactions());
+                sortedTxns.sort((a, b) -> {
+                    if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
+                    return b.getCreatedAt().compareTo(a.getCreatedAt());
+                });
+
+                for (TransactionResponse tx : sortedTxns) {
                     String date = tx.getCreatedAt() != null ? tx.getCreatedAt().format(DATE_TIME_FORMATTER) : "";
                     String debit = "DEBIT".equalsIgnoreCase(tx.getEntryType()) ? tx.getAmount().toString() : "";
                     String credit = "CREDIT".equalsIgnoreCase(tx.getEntryType()) ? tx.getAmount().toString() : "";

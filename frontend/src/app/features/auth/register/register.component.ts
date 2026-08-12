@@ -10,272 +10,299 @@ import { ToastService } from '../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-[#070d1e] flex items-center justify-center p-4 md:p-8 relative">
-      <div class="max-w-3xl w-full rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#0f1936]/90 backdrop-blur-xl p-6 md:p-10 relative z-10">
+    <div class="min-h-screen bg-[#f8fafc] flex flex-col justify-between">
+      
+      <!-- Dark Top Bar (Matching Reference Header) -->
+      <header class="h-16 bg-[#111827] border-b border-slate-800 px-4 md:px-8 flex items-center justify-between shadow-xs">
+        <a routerLink="/" class="flex items-center gap-2.5 no-underline">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center text-sm font-bold shadow-xs">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+          <span class="text-base font-extrabold text-white tracking-tight font-display">Godavari Bank</span>
+        </a>
+
+        <div class="flex items-center gap-2">
+          <a routerLink="/auth/login" class="text-xs text-slate-300 hover:text-white font-medium px-3 py-1.5 rounded-full hover:bg-slate-800 transition-colors">
+            Already have an account? <strong class="text-amber-400 ml-1">Sign In</strong>
+          </a>
+        </div>
+      </header>
+
+      <!-- Main Registration Container -->
+      <main class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 animate-fade-in max-w-2xl mx-auto w-full">
         
-        <!-- Header -->
-        <div class="flex items-center justify-between pb-6 border-b border-white/10 mb-8">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-400 to-blue-600 flex items-center justify-center text-white text-xl shadow-lg shadow-sky-500/30">
-              <i class="fa-solid fa-user-plus"></i>
-            </div>
-            <div>
-              <h2 class="text-xl font-bold text-white">Open a Godavari Bank Account</h2>
-              <p class="text-xs text-slate-400">Complete instant KYC verification and setup online banking in minutes</p>
-            </div>
+        <!-- Hero Header with Banner Pill -->
+        <div class="text-center mb-5 space-y-2">
+          <div class="banner-pill">
+            <i class="fa-solid fa-user-plus"></i> Instant Online Account Opening
           </div>
-          <div class="flex items-center gap-3">
-            <button type="button" (click)="fillDemoData()" class="px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-xs font-semibold border border-sky-500/30 transition-all">
-              <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Auto-Fill Demo
-            </button>
-            <a routerLink="/auth/login" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-medium">
-              <i class="fa-solid fa-arrow-left"></i> Login
-            </a>
-          </div>
+          <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+            Open Your Bank Account
+          </h1>
+          <p class="text-xs md:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+            Paperless digital onboarding with instant account generation, debit card issuance, and 4-digit PIN setup.
+          </p>
         </div>
 
-        <!-- Step Progress Tracker -->
-        <div class="grid grid-cols-4 gap-2 mb-8 text-center text-xs">
-          <div *ngFor="let s of [1,2,3,4]; let i = index" class="flex flex-col items-center gap-2">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all"
-                 [ngClass]="step() > s ? 'bg-emerald-500 text-white' : step() === s ? 'bg-sky-500 text-white ring-4 ring-sky-500/20' : 'bg-slate-800 text-slate-500 border border-slate-700'">
-              <i *ngIf="step() > s" class="fa-solid fa-check text-xs"></i>
-              <span *ngIf="step() <= s">{{ s }}</span>
-            </div>
-            <span class="text-[11px] font-medium" [ngClass]="step() >= s ? 'text-slate-200' : 'text-slate-500'">
-              {{ i === 0 ? 'Personal' : i === 1 ? 'KYC Details' : i === 2 ? 'Account & Nominee' : 'Deposit & PIN' }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Form Body -->
-        <form (ngSubmit)="onSubmit()">
+        <div class="w-full bank-card p-6 md:p-8 space-y-5">
           
-          <!-- STEP 1: Personal Info -->
-          <div *ngIf="step() === 1" class="space-y-4 animate-fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="bank-label">First Name *</label>
-                <input [(ngModel)]="form.firstName" name="firstName" required type="text" class="bank-input" placeholder="e.g. Ramesh" />
-              </div>
-              <div>
-                <label class="bank-label">Last Name *</label>
-                <input [(ngModel)]="form.lastName" name="lastName" required type="text" class="bank-input" placeholder="e.g. Patel" />
-              </div>
+          <!-- Header Actions -->
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="text-xs font-bold text-slate-800">
+              Step {{ step() }} of 4: 
+              <span class="text-amber-600">
+                {{ step() === 1 ? 'Personal Profile' : step() === 2 ? 'Identity & Address' : step() === 3 ? 'Account Type' : 'PIN & Deposit' }}
+              </span>
             </div>
+            <button type="button" (click)="fillDemoData()" class="px-3 py-1 rounded-full bg-slate-50 hover:bg-amber-50 hover:border-amber-400 text-slate-700 text-xs font-semibold border border-slate-200 cursor-pointer shadow-2xs transition-all flex items-center gap-1">
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> Auto-Fill Demo
+            </button>
+          </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="bank-label">Gender *</label>
-                <select [(ngModel)]="form.gender" name="gender" class="bank-input">
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
+          <!-- Step Progress Tracker -->
+          <div class="grid grid-cols-4 gap-2 text-center text-xs">
+            <div *ngFor="let s of [1,2,3,4]; let i = index" class="flex flex-col items-center gap-1">
+              <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs transition-all"
+                   [ngClass]="step() > s ? 'bg-emerald-600 text-white' : step() === s ? 'bg-amber-500 text-slate-950 shadow-xs' : 'bg-slate-100 text-slate-400 border border-slate-200'">
+                <i *ngIf="step() > s" class="fa-solid fa-check text-[10px]"></i>
+                <span *ngIf="step() <= s">{{ s }}</span>
               </div>
-              <div>
-                <label class="bank-label">Date of Birth *</label>
-                <input [(ngModel)]="form.dateOfBirth" name="dateOfBirth" required type="date" class="bank-input" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="bank-label">Email Address *</label>
-                <input [(ngModel)]="form.email" name="email" required type="email" class="bank-input" placeholder="ramesh@example.com" />
-              </div>
-              <div>
-                <label class="bank-label">Mobile Number *</label>
-                <input [(ngModel)]="form.mobile" name="mobile" required maxlength="10" type="text" class="bank-input" placeholder="10-digit mobile (e.g. 9811122299)" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="bank-label">Choose Username *</label>
-                <input [(ngModel)]="form.username" name="username" required type="text" class="bank-input" placeholder="ramesh_sbi" />
-              </div>
-              <div>
-                <label class="bank-label">Create Password *</label>
-                <input [(ngModel)]="form.password" name="password" required type="password" class="bank-input" placeholder="Min 6 characters" />
-              </div>
-            </div>
-
-            <div class="flex justify-end pt-4">
-              <button type="button" (click)="nextStep()" 
-                      [disabled]="!form.firstName || !form.lastName || !form.email || !form.mobile || !form.username || !form.password"
-                      class="bank-btn-primary px-8">
-                Next: KYC Info <i class="fa-solid fa-arrow-right ml-1"></i>
-              </button>
+              <span class="text-[10px] font-semibold" [ngClass]="step() >= s ? 'text-slate-900' : 'text-slate-400'">
+                {{ i === 0 ? 'Personal' : i === 1 ? 'KYC' : i === 2 ? 'Account' : 'PIN' }}
+              </span>
             </div>
           </div>
 
-          <!-- STEP 2: KYC & Address -->
-          <div *ngIf="step() === 2" class="space-y-4 animate-fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="bank-label">PAN Card Number (10 Alphanumeric) *</label>
-                <input [(ngModel)]="form.panNumber" name="panNumber" required maxlength="10" type="text" class="bank-input uppercase" placeholder="ABCDE1234F" />
+          <!-- Form Body -->
+          <form (ngSubmit)="onSubmit()">
+            
+            <!-- STEP 1: Personal Info -->
+            <div *ngIf="step() === 1" class="space-y-3.5 animate-fade-in text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="bank-label">First Name *</label>
+                  <input [(ngModel)]="form.firstName" name="firstName" required type="text" class="bank-input text-xs" placeholder="e.g. Ramesh" />
+                </div>
+                <div>
+                  <label class="bank-label">Last Name *</label>
+                  <input [(ngModel)]="form.lastName" name="lastName" required type="text" class="bank-input text-xs" placeholder="e.g. Patel" />
+                </div>
               </div>
-              <div>
-                <label class="bank-label">Aadhaar Card Number (12 Digits) *</label>
-                <input [(ngModel)]="form.aadhaarNumber" name="aadhaarNumber" required maxlength="12" type="text" class="bank-input" placeholder="123456789012" />
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="bank-label">Gender *</label>
+                  <select [(ngModel)]="form.gender" name="gender" class="bank-input text-xs">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="bank-label">Date of Birth *</label>
+                  <input [(ngModel)]="form.dateOfBirth" name="dateOfBirth" required type="date" class="bank-input text-xs" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="bank-label">Email Address *</label>
+                  <input [(ngModel)]="form.email" name="email" required type="email" class="bank-input text-xs" placeholder="ramesh@example.com" />
+                </div>
+                <div>
+                  <label class="bank-label">Mobile Number *</label>
+                  <input [(ngModel)]="form.mobile" name="mobile" required maxlength="10" type="text" class="bank-input text-xs" placeholder="10-digit mobile" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="bank-label">Username *</label>
+                  <input [(ngModel)]="form.username" name="username" required type="text" class="bank-input text-xs" placeholder="ramesh_sbi" />
+                </div>
+                <div>
+                  <label class="bank-label">Password *</label>
+                  <input [(ngModel)]="form.password" name="password" required type="password" class="bank-input text-xs" placeholder="Min 6 characters" />
+                </div>
+              </div>
+
+              <div class="flex justify-end pt-3 border-t border-slate-100">
+                <button type="button" (click)="nextStep()" 
+                        [disabled]="!form.firstName || !form.lastName || !form.email || !form.mobile || !form.username || !form.password"
+                        class="bank-btn-primary px-6 text-xs font-bold">
+                  Next: KYC Info <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
               </div>
             </div>
 
-            <div>
-              <label class="bank-label">Residential Address *</label>
-              <textarea [(ngModel)]="form.address" name="address" rows="2" required class="bank-input" placeholder="Flat / House No, Street, Landmark"></textarea>
-            </div>
+            <!-- STEP 2: KYC & Address -->
+            <div *ngIf="step() === 2" class="space-y-3.5 animate-fade-in text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="bank-label">PAN Number *</label>
+                  <input [(ngModel)]="form.panNumber" name="panNumber" required maxlength="10" type="text" class="bank-input uppercase text-xs" placeholder="ABCDE1234F" />
+                </div>
+                <div>
+                  <label class="bank-label">Aadhaar Number *</label>
+                  <input [(ngModel)]="form.aadhaarNumber" name="aadhaarNumber" required maxlength="12" type="text" class="bank-input text-xs" placeholder="12-digit Aadhaar" />
+                </div>
+              </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label class="bank-label">City *</label>
-                <input [(ngModel)]="form.city" name="city" required type="text" class="bank-input" placeholder="e.g. Mumbai" />
+                <label class="bank-label">Residential Address *</label>
+                <textarea [(ngModel)]="form.address" name="address" rows="2" required class="bank-input text-xs" placeholder="Street, Area, Landmark"></textarea>
               </div>
-              <div>
-                <label class="bank-label">State *</label>
-                <input [(ngModel)]="form.state" name="state" required type="text" class="bank-input" placeholder="e.g. Maharashtra" />
-              </div>
-              <div>
-                <label class="bank-label">Pincode *</label>
-                <input [(ngModel)]="form.pincode" name="pincode" required maxlength="6" type="text" class="bank-input" placeholder="400001" />
-              </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="bank-label">Occupation *</label>
-                <input [(ngModel)]="form.occupation" name="occupation" required type="text" class="bank-input" placeholder="e.g. Salaried / Business" />
-              </div>
-              <div>
-                <label class="bank-label">Annual Income (₹) *</label>
-                <input [(ngModel)]="form.annualIncome" name="annualIncome" required type="number" class="bank-input" placeholder="e.g. 850000" />
-              </div>
-            </div>
-
-            <div class="flex justify-between pt-4">
-              <button type="button" (click)="prevStep()" class="bank-btn-secondary">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Back
-              </button>
-              <button type="button" (click)="nextStep()" 
-                      [disabled]="!form.panNumber || !form.aadhaarNumber || !form.address || !form.city || !form.pincode"
-                      class="bank-btn-primary px-8">
-                Next: Account Setup <i class="fa-solid fa-arrow-right ml-1"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- STEP 3: Account Options & Nominee -->
-          <div *ngIf="step() === 3" class="space-y-4 animate-fade-in">
-            <div>
-              <label class="bank-label">Select Account Type *</label>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div (click)="setAccountType('SAVINGS')" 
-                     class="p-4 rounded-xl border cursor-pointer transition-all text-center"
-                     [ngClass]="form.accountType === 'SAVINGS' ? 'bg-sky-600/20 border-sky-500 ring-2 ring-sky-500/30' : 'bg-slate-800/40 border-slate-700 hover:bg-slate-800'">
-                  <div class="text-sky-400 font-bold text-base mb-1">Savings Account</div>
-                  <div class="text-xs text-slate-300">Min. Balance: ₹3,000</div>
-                  <div class="text-[11px] text-emerald-400 mt-1">3.5% Interest p.a.</div>
+                <div>
+                  <label class="bank-label">City *</label>
+                  <input [(ngModel)]="form.city" name="city" required type="text" class="bank-input text-xs" placeholder="Mumbai" />
                 </div>
-
-                <div (click)="setAccountType('CURRENT')" 
-                     class="p-4 rounded-xl border cursor-pointer transition-all text-center"
-                     [ngClass]="form.accountType === 'CURRENT' ? 'bg-sky-600/20 border-sky-500 ring-2 ring-sky-500/30' : 'bg-slate-800/40 border-slate-700 hover:bg-slate-800'">
-                  <div class="text-amber-400 font-bold text-base mb-1">Current Account</div>
-                  <div class="text-xs text-slate-300">Min. Balance: ₹10,000</div>
-                  <div class="text-[11px] text-slate-400 mt-1">High volume limit</div>
+                <div>
+                  <label class="bank-label">State *</label>
+                  <input [(ngModel)]="form.state" name="state" required type="text" class="bank-input text-xs" placeholder="Maharashtra" />
                 </div>
-
-                <div (click)="setAccountType('SALARY')" 
-                     class="p-4 rounded-xl border cursor-pointer transition-all text-center"
-                     [ngClass]="form.accountType === 'SALARY' ? 'bg-sky-600/20 border-sky-500 ring-2 ring-sky-500/30' : 'bg-slate-800/40 border-slate-700 hover:bg-slate-800'">
-                  <div class="text-emerald-400 font-bold text-base mb-1">Salary Account</div>
-                  <div class="text-xs text-slate-300">Min. Balance: ₹0</div>
-                  <div class="text-[11px] text-emerald-400 mt-1">Zero balance payroll</div>
+                <div>
+                  <label class="bank-label">Pincode *</label>
+                  <input [(ngModel)]="form.pincode" name="pincode" required maxlength="6" type="text" class="bank-input text-xs" placeholder="400001" />
                 </div>
               </div>
-            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              <div>
-                <label class="bank-label">Nominee Full Name (Optional)</label>
-                <input [(ngModel)]="form.nomineeName" name="nomineeName" type="text" class="bank-input" placeholder="e.g. Priya Patel" />
-              </div>
-              <div>
-                <label class="bank-label">Nominee Relationship</label>
-                <input [(ngModel)]="form.nomineeRelation" name="nomineeRelation" type="text" class="bank-input" placeholder="e.g. Spouse / Parent" />
-              </div>
-            </div>
-
-            <div class="flex justify-between pt-4">
-              <button type="button" (click)="prevStep()" class="bank-btn-secondary">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Back
-              </button>
-              <button type="button" (click)="nextStep()" class="bank-btn-primary px-8">
-                Next: Security PIN <i class="fa-solid fa-arrow-right ml-1"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- STEP 4: Initial Deposit & 4-Digit PIN -->
-          <div *ngIf="step() === 4" class="space-y-6 animate-fade-in">
-            <div class="p-4 rounded-2xl bg-sky-950/40 border border-sky-500/30 flex items-center justify-between">
-              <div>
-                <div class="text-xs text-sky-400 font-semibold uppercase">Initial Account Opening Deposit</div>
-                <div class="text-sm text-slate-300">Funds credited instantly to your new account</div>
-              </div>
-              <div class="w-48">
-                <input [(ngModel)]="form.initialDeposit" name="initialDeposit" type="number" min="500" class="bank-input text-right font-bold text-emerald-400" />
-              </div>
-            </div>
-
-            <div class="p-6 rounded-2xl bg-slate-900 border border-white/10 text-center space-y-4">
-              <div>
-                <h4 class="text-base font-bold text-white mb-1">Set 4-Digit Transaction PIN</h4>
-                <p class="text-xs text-slate-400">This PIN will authorize all your financial transfers and payments.</p>
-              </div>
-              
-              <div class="max-w-xs mx-auto">
-                <input [(ngModel)]="form.transactionPin" name="transactionPin" maxlength="4" type="password" 
-                       placeholder="••••"
-                       class="bank-input text-center text-2xl tracking-[0.5em] font-bold" />
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="bank-label">Occupation</label>
+                  <input [(ngModel)]="form.occupation" name="occupation" required type="text" class="bank-input text-xs" placeholder="e.g. Salaried" />
+                </div>
+                <div>
+                  <label class="bank-label">Annual Income (₹)</label>
+                  <input [(ngModel)]="form.annualIncome" name="annualIncome" required type="number" class="bank-input text-xs" placeholder="850000" />
+                </div>
               </div>
 
-              <!-- Quick PIN Pad Buttons -->
-              <div class="grid grid-cols-3 gap-2 max-w-[220px] mx-auto pt-2">
-                <button *ngFor="let num of [1,2,3,4,5,6,7,8,9]" type="button" 
-                        (click)="appendPin(num)"
-                        class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700 transition-all">
-                  {{ num }}
+              <div class="flex justify-between pt-3 border-t border-slate-100">
+                <button type="button" (click)="prevStep()" class="bank-btn-secondary text-xs">
+                  <i class="fa-solid fa-arrow-left mr-1"></i> Back
                 </button>
-                <button type="button" (click)="clearPin()" class="p-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-bold text-xs border border-rose-500/30">
-                  CLR
-                </button>
-                <button type="button" (click)="appendPin(0)" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700">
-                  0
-                </button>
-                <button type="button" (click)="backspacePin()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700">
-                  ⌫
+                <button type="button" (click)="nextStep()" 
+                        [disabled]="!form.panNumber || !form.aadhaarNumber || !form.address || !form.city || !form.pincode"
+                        class="bank-btn-primary px-6 text-xs font-bold">
+                  Next: Account Setup <i class="fa-solid fa-arrow-right ml-1"></i>
                 </button>
               </div>
             </div>
 
-            <div class="flex justify-between pt-4">
-              <button type="button" (click)="prevStep()" class="bank-btn-secondary">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Back
-              </button>
-              <button type="submit" [disabled]="loading() || !form.transactionPin || form.transactionPin.length !== 4" 
-                      class="bank-btn-primary px-10 text-base">
-                <i *ngIf="loading()" class="fa-solid fa-circle-notch fa-spin"></i>
-                <span *ngIf="!loading()"><i class="fa-solid fa-check-circle mr-1"></i> Open My Account</span>
-              </button>
+            <!-- STEP 3: Account Options & Nominee -->
+            <div *ngIf="step() === 3" class="space-y-3.5 animate-fade-in text-xs">
+              <div>
+                <label class="bank-label">Select Account Type *</label>
+                <div class="grid grid-cols-3 gap-2.5">
+                  <div (click)="setAccountType('SAVINGS')" 
+                       class="p-3 rounded-xl border cursor-pointer transition-all text-center"
+                       [ngClass]="form.accountType === 'SAVINGS' ? 'bg-amber-50/70 border-amber-500 shadow-xs' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'">
+                    <div class="font-bold text-xs mb-0.5" [ngClass]="form.accountType === 'SAVINGS' ? 'text-amber-950' : 'text-slate-800'">Savings</div>
+                    <div class="text-[10px] text-slate-500">Min ₹3,000</div>
+                  </div>
+
+                  <div (click)="setAccountType('CURRENT')" 
+                       class="p-3 rounded-xl border cursor-pointer transition-all text-center"
+                       [ngClass]="form.accountType === 'CURRENT' ? 'bg-amber-50/70 border-amber-500 shadow-xs' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'">
+                    <div class="font-bold text-xs mb-0.5" [ngClass]="form.accountType === 'CURRENT' ? 'text-amber-950' : 'text-slate-800'">Current</div>
+                    <div class="text-[10px] text-slate-500">Min ₹10,000</div>
+                  </div>
+
+                  <div (click)="setAccountType('SALARY')" 
+                       class="p-3 rounded-xl border cursor-pointer transition-all text-center"
+                       [ngClass]="form.accountType === 'SALARY' ? 'bg-amber-50/70 border-amber-500 shadow-xs' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'">
+                    <div class="font-bold text-xs mb-0.5" [ngClass]="form.accountType === 'SALARY' ? 'text-amber-950' : 'text-slate-800'">Salary</div>
+                    <div class="text-[10px] text-slate-500">Zero Balance</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label class="bank-label">Nominee Name (Optional)</label>
+                  <input [(ngModel)]="form.nomineeName" name="nomineeName" type="text" class="bank-input text-xs" placeholder="e.g. Priya Patel" />
+                </div>
+                <div>
+                  <label class="bank-label">Nominee Relationship</label>
+                  <input [(ngModel)]="form.nomineeRelation" name="nomineeRelation" type="text" class="bank-input text-xs" placeholder="e.g. Spouse" />
+                </div>
+              </div>
+
+              <div class="flex justify-between pt-3 border-t border-slate-100">
+                <button type="button" (click)="prevStep()" class="bank-btn-secondary text-xs">
+                  <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                </button>
+                <button type="button" (click)="nextStep()" class="bank-btn-primary px-6 text-xs font-bold">
+                  Next: Security PIN <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+              </div>
             </div>
-          </div>
 
-        </form>
+            <!-- STEP 4: Initial Deposit & 4-Digit PIN -->
+            <div *ngIf="step() === 4" class="space-y-4 animate-fade-in text-xs">
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Initial Opening Deposit</div>
+                  <div class="text-[10px] text-slate-500">Credited to your new account balance</div>
+                </div>
+                <div class="w-36">
+                  <input [(ngModel)]="form.initialDeposit" name="initialDeposit" type="number" min="500" class="bank-input text-right font-bold text-emerald-600 text-xs" />
+                </div>
+              </div>
 
-      </div>
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-3">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900 font-serif">Set 4-Digit Transaction PIN</h4>
+                  <p class="text-[10px] text-slate-500">Used for authorizing fund transfers & debit transactions</p>
+                </div>
+                
+                <div class="max-w-[180px] mx-auto">
+                  <input [(ngModel)]="form.transactionPin" name="transactionPin" maxlength="4" type="password" 
+                         placeholder="••••"
+                         class="bank-input text-center text-xl tracking-[0.4em] font-bold" />
+                </div>
+
+                <!-- Quick PIN Pad Buttons -->
+                <div class="grid grid-cols-3 gap-1.5 max-w-[180px] mx-auto">
+                  <button *ngFor="let num of [1,2,3,4,5,6,7,8,9]" type="button" 
+                          (click)="appendPin(num)"
+                          class="p-2 rounded-lg bg-white hover:bg-amber-50 text-slate-800 font-bold text-xs border border-slate-200 transition-all cursor-pointer shadow-2xs">
+                    {{ num }}
+                  </button>
+                  <button type="button" (click)="clearPin()" class="p-2 rounded-lg bg-white hover:bg-rose-50 text-rose-600 font-bold text-xs border border-slate-200 cursor-pointer shadow-2xs">
+                    C
+                  </button>
+                  <button type="button" (click)="appendPin(0)" class="p-2 rounded-lg bg-white hover:bg-amber-50 text-slate-800 font-bold text-xs border border-slate-200 cursor-pointer shadow-2xs">
+                    0
+                  </button>
+                  <button type="button" (click)="backspacePin()" class="p-2 rounded-lg bg-white hover:bg-slate-100 text-slate-600 font-bold text-xs border border-slate-200 cursor-pointer shadow-2xs">
+                    ⌫
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex justify-between pt-3 border-t border-slate-100">
+                <button type="button" (click)="prevStep()" class="bank-btn-secondary text-xs">
+                  <i class="fa-solid fa-arrow-left mr-1"></i> Back
+                </button>
+                <button type="submit" [disabled]="loading() || !form.transactionPin || form.transactionPin.length !== 4" 
+                        class="bank-btn-primary px-8 text-xs font-bold">
+                  <i *ngIf="loading()" class="fa-solid fa-circle-notch fa-spin mr-1"></i>
+                  <span *ngIf="!loading()">Open Account →</span>
+                </button>
+              </div>
+            </div>
+
+          </form>
+
+        </div>
+      </main>
+
+      <footer class="py-4 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+        © 2026 Godavari Bank Online Management System. 256-Bit Encrypted.
+      </footer>
     </div>
   `
 })

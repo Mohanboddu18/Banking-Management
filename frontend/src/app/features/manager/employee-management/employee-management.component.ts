@@ -10,32 +10,45 @@ import { Employee } from '../../../core/models/models';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="max-w-6xl mx-auto space-y-6 animate-fade-in">
+    <div class="max-w-5xl mx-auto space-y-6 animate-fade-in py-2">
       
-      <!-- Header -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-bold text-white flex items-center gap-2.5">
-            <i class="fa-solid fa-users-gear text-purple-400"></i> Branch Employee Governance
-          </h1>
-          <p class="text-xs text-slate-400">Hire specialized banking staff, manage roles, departments, and credentials</p>
+      <!-- Top Banner Pill & Serif Header -->
+      <div class="text-center space-y-2">
+        <div class="banner-pill">
+          <i class="fa-solid fa-users"></i> Human Resources & Staff Access Control
         </div>
-        <button (click)="showHireModal.set(true)" class="bank-btn-primary text-xs bg-purple-600 hover:bg-purple-700">
-          <i class="fa-solid fa-user-plus"></i> Hire New Employee
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          Branch Employee Directory
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          Onboard new bank staff, assign departmental operational roles, and manage employee active/suspended credentials.
+        </p>
+      </div>
+
+      <!-- Header Action Bar -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-1">
+        <h2 class="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+          <i class="fa-solid fa-id-badge text-amber-500"></i> Active Staff Roster
+        </h2>
+        <button (click)="showHireModal.set(true)" class="bank-btn-primary text-xs py-1.5 px-3.5 font-bold shadow-xs">
+          <i class="fa-solid fa-plus mr-1"></i> Onboard New Staff
         </button>
       </div>
 
       <!-- Employees Table -->
-      <div class="bank-glass p-6 md:p-8 rounded-3xl space-y-4">
-        <h3 class="text-base font-bold text-white">Active Branch Staff ({{ employees().length }})</h3>
+      <div class="bank-card p-6 space-y-4">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+          <h3 class="text-base font-bold text-slate-900 font-serif">Staff Directory</h3>
+          <span class="pill-dark text-[9px] py-0 px-2.5">{{ employees().length }} Officers</span>
+        </div>
 
         <div class="overflow-x-auto">
           <table class="bank-table">
             <thead>
               <tr>
-                <th>Emp ID</th>
-                <th>Employee Name</th>
-                <th>Designation & Role</th>
+                <th>Employee ID</th>
+                <th>Staff Name</th>
+                <th>Assigned Role</th>
                 <th>Department</th>
                 <th>Contact</th>
                 <th>Status</th>
@@ -44,17 +57,17 @@ import { Employee } from '../../../core/models/models';
             </thead>
             <tbody>
               <tr *ngFor="let emp of employees()">
-                <td class="font-mono text-xs font-bold text-sky-400">{{ emp.employeeId }}</td>
+                <td class="font-mono text-xs font-bold text-slate-900">{{ emp.employeeId }}</td>
                 <td>
-                  <div class="font-bold text-white text-xs">{{ emp.fullName }}</div>
+                  <div class="font-bold text-slate-900 text-xs">{{ emp.fullName }}</div>
                   <div class="text-[10px] text-slate-500 font-mono">{{ emp.username }}</div>
                 </td>
                 <td>
-                  <span class="badge badge-purple text-[10px]">{{ emp.roleDesignation }}</span>
+                  <span class="pill-dark text-[9px] py-0.5 px-2">{{ emp.roleDesignation }}</span>
                 </td>
-                <td class="text-xs text-slate-300">{{ emp.department }}</td>
+                <td class="text-xs font-semibold text-slate-700">{{ emp.department }}</td>
                 <td>
-                  <div class="text-xs text-slate-300">{{ emp.email }}</div>
+                  <div class="text-xs font-semibold text-slate-900">{{ emp.email }}</div>
                   <div class="text-[10px] text-slate-500 font-mono">+91 {{ emp.mobile }}</div>
                 </td>
                 <td>
@@ -63,8 +76,8 @@ import { Employee } from '../../../core/models/models';
                   </span>
                 </td>
                 <td>
-                  <button (click)="toggleEmployeeStatus(emp)" class="bank-btn-secondary text-xs py-1 px-2.5">
-                    {{ emp.status === 'ACTIVE' ? 'Suspend' : 'Activate' }}
+                  <button (click)="toggleEmployeeStatus(emp)" class="bank-btn-secondary text-xs py-1 px-3 font-semibold">
+                    {{ emp.status === 'ACTIVE' ? 'Suspend Access' : 'Reactivate' }}
                   </button>
                 </td>
               </tr>
@@ -74,69 +87,70 @@ import { Employee } from '../../../core/models/models';
       </div>
 
       <!-- Hire Employee Modal -->
-      <div *ngIf="showHireModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-        <div class="bank-glass p-6 md:p-8 rounded-3xl max-w-lg w-full shadow-2xl border border-purple-500/30">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-white">Hire New Bank Employee</h3>
-            <button (click)="showHireModal.set(false)" class="text-slate-400 hover:text-white">
-              <i class="fa-solid fa-xmark"></i>
+      <div *ngIf="showHireModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in">
+        <div class="bank-card p-6 rounded-2xl max-w-md w-full shadow-2xl space-y-4">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-900 font-serif">Onboard Bank Employee</h3>
+            <button (click)="showHireModal.set(false)" class="text-slate-400 hover:text-slate-700 cursor-pointer">
+              <i class="fa-solid fa-times"></i>
             </button>
           </div>
 
-          <form (ngSubmit)="submitHire()" class="space-y-4">
-            <div class="grid grid-cols-2 gap-3">
+          <form (ngSubmit)="submitHire()" class="space-y-3 text-xs">
+            <div class="grid grid-cols-2 gap-2.5">
               <div>
                 <label class="bank-label">Full Name *</label>
-                <input [(ngModel)]="newEmp.fullName" name="fn" required type="text" class="bank-input" placeholder="e.g. Vikram Sethi" />
+                <input [(ngModel)]="newEmp.fullName" name="fn" required type="text" class="bank-input text-xs font-semibold" placeholder="Vikram Sethi" />
               </div>
               <div>
                 <label class="bank-label">Username *</label>
-                <input [(ngModel)]="newEmp.username" name="un" required type="text" class="bank-input" placeholder="e.g. vikram_loan" />
+                <input [(ngModel)]="newEmp.username" name="un" required type="text" class="bank-input text-xs font-semibold" placeholder="vikram_loan" />
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-2.5">
               <div>
                 <label class="bank-label">Email Address *</label>
-                <input [(ngModel)]="newEmp.email" name="em" required type="email" class="bank-input" placeholder="vikram@sbi.bank" />
+                <input [(ngModel)]="newEmp.email" name="em" required type="email" class="bank-input text-xs" placeholder="vikram@godavari.bank" />
               </div>
               <div>
                 <label class="bank-label">Mobile Number *</label>
-                <input [(ngModel)]="newEmp.mobile" name="mb" required maxlength="10" type="text" class="bank-input" placeholder="9811122204" />
+                <input [(ngModel)]="newEmp.mobile" name="mb" required maxlength="10" type="text" class="bank-input text-xs font-mono" placeholder="9811122204" />
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-2.5">
               <div>
-                <label class="bank-label">Banking Role *</label>
-                <select [(ngModel)]="newEmp.roleName" name="rn" class="bank-input">
+                <label class="bank-label">Assigned Role *</label>
+                <select [(ngModel)]="newEmp.roleName" name="rn" class="bank-input text-xs font-semibold">
                   <option value="ROLE_EMPLOYEE_CASHIER">Head Cashier</option>
                   <option value="ROLE_EMPLOYEE_LOAN_OFFICER">Loan Officer</option>
-                  <option value="ROLE_EMPLOYEE_CUSTOMER_SERVICE">Customer Support Officer</option>
-                  <option value="ROLE_EMPLOYEE_OPERATIONS">Operations & Cheque Officer</option>
+                  <option value="ROLE_EMPLOYEE_CUSTOMER_SERVICE">Support Officer</option>
+                  <option value="ROLE_EMPLOYEE_OPERATIONS">Operations & Cheques</option>
                   <option value="ROLE_EMPLOYEE_ASST_MANAGER">Assistant Manager</option>
                 </select>
               </div>
               <div>
                 <label class="bank-label">Department *</label>
-                <input [(ngModel)]="newEmp.department" name="dp" required type="text" class="bank-input" placeholder="Credit & Loans" />
+                <input [(ngModel)]="newEmp.department" name="dp" required type="text" class="bank-input text-xs font-semibold" placeholder="Credit & Loans" />
               </div>
             </div>
 
             <div>
-              <label class="bank-label">Temporary Password *</label>
-              <input [(ngModel)]="newEmp.password" name="pw" required type="password" class="bank-input" placeholder="Password@123" />
+              <label class="bank-label">Initial Login Password *</label>
+              <input [(ngModel)]="newEmp.password" name="pw" required type="password" class="bank-input text-xs" placeholder="Password@123" />
             </div>
 
-            <div class="flex gap-3 pt-3">
-              <button type="button" (click)="showHireModal.set(false)" class="bank-btn-secondary flex-1">Cancel</button>
-              <button type="submit" [disabled]="!newEmp.fullName || !newEmp.username || !newEmp.email || !newEmp.password" class="bank-btn-primary flex-1 bg-purple-600 hover:bg-purple-700">
-                Register Staff
+            <div class="flex gap-2.5 pt-2 border-t border-slate-100">
+              <button type="button" (click)="showHireModal.set(false)" class="bank-btn-secondary flex-1 py-2 text-xs">Cancel</button>
+              <button type="submit" [disabled]="!newEmp.fullName || !newEmp.username || !newEmp.email || !newEmp.password" class="bank-btn-primary flex-1 py-2 text-xs font-bold">
+                Register Officer →
               </button>
             </div>
           </form>
         </div>
       </div>
+
 
     </div>
   `

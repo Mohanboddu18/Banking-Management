@@ -9,24 +9,39 @@ import { AuditLogItem } from '../../../core/models/models';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="max-w-6xl mx-auto space-y-6 animate-fade-in">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-white flex items-center gap-2.5">
-            <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> Immutable System Audit Trail
-          </h1>
-          <p class="text-xs text-slate-400">Real-time immutable security logs recording all transactions, logins, approvals, and system triggers</p>
+    <div class="max-w-5xl mx-auto space-y-6 animate-fade-in py-2">
+      
+      <!-- Top Banner Pill & Serif Header -->
+      <div class="text-center space-y-2">
+        <div class="banner-pill">
+          <i class="fa-solid fa-clock-rotate-left"></i> Security Logging & Regulatory Compliance Trail
         </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          System Audit Logs
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          Immutable forensic audit trail recording financial transactions, administrative actions, and authentication events.
+        </p>
+      </div>
 
-        <button (click)="loadLogs()" class="bank-btn-secondary text-xs">
-          <i class="fa-solid fa-arrows-rotate text-sky-400"></i> Refresh Logs
+      <!-- Action Sub-Header -->
+      <div class="flex items-center justify-between pb-1">
+        <h2 class="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-amber-500"></i> Event Audit Trail
+        </h2>
+
+        <button (click)="loadLogs()" class="bank-btn-secondary text-xs py-1.5 px-3.5 font-semibold shadow-2xs">
+          <i class="fa-solid fa-arrows-rotate mr-1 text-amber-600"></i> Refresh Log Stream
         </button>
       </div>
 
-      <div class="bank-glass p-6 md:p-8 rounded-3xl space-y-4">
-        <h3 class="text-base font-bold text-white">Live System Audit Events ({{ logs().length }})</h3>
+      <div class="bank-card p-6 space-y-4">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+          <h3 class="text-base font-bold text-slate-900 font-serif">Logged Activity Events</h3>
+          <span class="pill-dark text-[9px] py-0 px-2.5">{{ logs().length }} Records</span>
+        </div>
 
-        <div *ngIf="logs().length === 0" class="py-12 text-center text-xs text-slate-400">
+        <div *ngIf="logs().length === 0" class="py-8 text-center text-xs text-slate-500">
           No audit logs recorded yet.
         </div>
 
@@ -35,7 +50,7 @@ import { AuditLogItem } from '../../../core/models/models';
             <thead>
               <tr>
                 <th>Timestamp</th>
-                <th>Actor / Username</th>
+                <th>Actor</th>
                 <th>Role</th>
                 <th>Action</th>
                 <th>Entity Target</th>
@@ -45,16 +60,16 @@ import { AuditLogItem } from '../../../core/models/models';
             </thead>
             <tbody>
               <tr *ngFor="let log of logs()">
-                <td class="text-xs text-slate-400 font-mono">{{ log.createdAt | date:'dd-MMM HH:mm:ss' }}</td>
-                <td class="font-bold text-white text-xs font-mono">{{ log.username }}</td>
+                <td class="text-xs text-slate-500 font-mono whitespace-nowrap">{{ log.createdAt | date:'dd-MMM-yyyy HH:mm:ss' }}</td>
+                <td class="font-bold text-slate-900 text-xs font-mono">{{ log.username }}</td>
                 <td>
-                  <span class="badge badge-purple text-[9px]">{{ log.role }}</span>
+                  <span class="pill-dark text-[9px] py-0 px-2">{{ log.role }}</span>
                 </td>
-                <td class="text-xs font-semibold text-sky-400 font-mono">{{ log.action }}</td>
-                <td class="text-xs text-slate-300 font-mono">
+                <td class="text-xs font-extrabold text-amber-700 font-mono">{{ log.action }}</td>
+                <td class="text-xs text-slate-700 font-mono font-semibold">
                   <span *ngIf="log.entityName">{{ log.entityName }} #{{ log.entityId }}</span>
                 </td>
-                <td class="text-xs text-slate-300 max-w-xs truncate">{{ log.details }}</td>
+                <td class="text-xs text-slate-600 max-w-xs truncate">{{ log.details }}</td>
                 <td>
                   <span class="badge badge-success text-[9px]">{{ log.status }}</span>
                 </td>

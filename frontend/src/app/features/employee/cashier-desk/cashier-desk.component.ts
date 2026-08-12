@@ -11,39 +11,46 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
   standalone: true,
   imports: [CommonModule, FormsModule, InrCurrencyPipe],
   template: `
-    <div class="max-w-4xl mx-auto space-y-6 animate-fade-in">
-      <div>
-        <h1 class="text-2xl font-bold text-white flex items-center gap-2.5">
-          <i class="fa-solid fa-cash-register text-emerald-400"></i> Cashier Counter Terminal
+    <div class="max-w-5xl mx-auto space-y-6 animate-fade-in py-2">
+      
+      <!-- Top Banner Pill & Serif Header -->
+      <div class="text-center space-y-2">
+        <div class="banner-pill">
+          <i class="fa-solid fa-cash-register"></i> Teller Operations & Counter Cash Management
+        </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          Cashier Desk Terminal
         </h1>
-        <p class="text-xs text-slate-400">Process over-the-counter cash deposits and withdrawals for walk-in banking customers</p>
+        <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          Lookup customer savings or current accounts and execute verified walk-in deposits and cash withdrawals.
+        </p>
       </div>
 
       <!-- Account Search Bar -->
-      <div class="bank-glass p-6 rounded-3xl space-y-4">
-        <label class="bank-label">Customer Account Lookup (Account Number / Name / PAN / Mobile)</label>
-        <div class="flex gap-3">
+      <div class="bank-card p-6 space-y-3">
+        <label class="bank-label">Customer Account Lookup (Account No / Name / Mobile)</label>
+        <div class="flex gap-2">
           <input [(ngModel)]="searchQuery" (keyup.enter)="searchAccounts()" type="text" 
-                 placeholder="e.g. SBIN00010001 or Mohan or ABCDE1001F" class="bank-input" />
-          <button (click)="searchAccounts()" class="bank-btn-primary px-6">
-            <i class="fa-solid fa-magnifying-glass"></i> Search
+                 placeholder="e.g. SBIN00010001 or Mohan" class="bank-input text-xs flex-1 font-semibold" />
+          <button (click)="searchAccounts()" class="bank-btn-primary px-5 text-xs font-bold">
+            <i class="fa-solid fa-magnifying-glass mr-1"></i> Search Account
           </button>
         </div>
 
         <!-- Search Results List -->
         <div *ngIf="searchResults().length > 0" class="pt-2">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-1">
             <div *ngFor="let acc of searchResults()" 
                  (click)="selectAccount(acc)"
-                 class="p-3 rounded-2xl bg-slate-800/60 hover:bg-emerald-950/40 border border-slate-700 hover:border-emerald-500/50 cursor-pointer flex justify-between items-center transition-all"
-                 [ngClass]="selectedAccount?.accountNumber === acc.accountNumber ? 'border-emerald-500 ring-2 ring-emerald-500/30' : ''">
+                 class="p-3 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 cursor-pointer flex justify-between items-center transition-all shadow-2xs"
+                 [ngClass]="selectedAccount?.accountNumber === acc.accountNumber ? 'border-amber-500 bg-amber-50' : ''">
               <div>
-                <div class="text-xs font-bold text-white">{{ acc.customerName }}</div>
-                <div class="text-[10px] text-slate-400 font-mono">{{ acc.accountNumber }} • {{ acc.accountTypeName }}</div>
+                <div class="text-xs font-bold text-slate-900">{{ acc.customerName }}</div>
+                <div class="text-[10px] text-slate-500 font-mono">{{ acc.accountNumber }} • {{ acc.accountTypeName }}</div>
               </div>
               <div class="text-right">
-                <div class="text-xs font-bold text-emerald-400">{{ acc.balance | inrCurrency }}</div>
-                <span class="badge badge-success text-[9px]">{{ acc.status }}</span>
+                <div class="text-xs font-extrabold text-emerald-600 font-mono">{{ acc.balance | inrCurrency }}</div>
+                <span class="pill-green text-[9px] py-0 px-2">{{ acc.status }}</span>
               </div>
             </div>
           </div>
@@ -51,57 +58,63 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
       </div>
 
       <!-- Counter Transaction Form -->
-      <div *ngIf="selectedAccount" class="bank-glass p-6 md:p-8 rounded-3xl space-y-6 animate-fade-in">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-2">
+      <div *ngIf="selectedAccount" class="bank-card p-6 space-y-4 animate-fade-in">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
           <div>
-            <h3 class="text-lg font-bold text-white">{{ selectedAccount.customerName }}</h3>
-            <p class="text-xs text-slate-400 font-mono">{{ selectedAccount.accountNumber }} • {{ selectedAccount.branchName }}</p>
+            <span class="pill-dark text-[9px] py-0 px-2 mb-1 inline-block">SELECTED CUSTOMER</span>
+            <h3 class="text-base font-bold text-slate-900 font-serif">{{ selectedAccount.customerName }}</h3>
+            <p class="text-[11px] text-slate-500 font-mono">{{ selectedAccount.accountNumber }} • {{ selectedAccount.branchName }}</p>
           </div>
           <div class="text-right">
-            <div class="text-[10px] text-slate-400 uppercase font-semibold">Current Available Balance</div>
-            <div class="text-xl font-extrabold text-emerald-400 font-mono">{{ selectedAccount.balance | inrCurrency }}</div>
+            <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Available Balance</div>
+            <div class="text-xl font-extrabold text-slate-950 font-display">{{ selectedAccount.balance | inrCurrency }}</div>
           </div>
         </div>
 
         <!-- Mode Buttons -->
         <div class="grid grid-cols-2 gap-3">
           <button type="button" (click)="opMode = 'DEPOSIT'" 
-                  class="p-3.5 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 transition-all"
-                  [ngClass]="opMode === 'DEPOSIT' ? 'bg-emerald-600/25 border-emerald-500 text-emerald-300 ring-2 ring-emerald-500/30' : 'bg-slate-800/40 border-slate-700 text-slate-400'">
-            <i class="fa-solid fa-circle-arrow-down text-emerald-400"></i> Cash Deposit
+                  class="p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                  [ngClass]="opMode === 'DEPOSIT' ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'">
+            <i class="fa-solid fa-circle-arrow-down"></i> Cash Deposit
           </button>
           <button type="button" (click)="opMode = 'WITHDRAW'" 
-                  class="p-3.5 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 transition-all"
-                  [ngClass]="opMode === 'WITHDRAW' ? 'bg-rose-600/25 border-rose-500 text-rose-300 ring-2 ring-rose-500/30' : 'bg-slate-800/40 border-slate-700 text-slate-400'">
-            <i class="fa-solid fa-circle-arrow-up text-rose-400"></i> Cash Withdrawal
+                  class="p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                  [ngClass]="opMode === 'WITHDRAW' ? 'bg-rose-600 border-rose-600 text-white shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'">
+            <i class="fa-solid fa-circle-arrow-up"></i> Cash Withdrawal
           </button>
         </div>
 
-        <form (ngSubmit)="processCounterTxn()" class="space-y-4">
+        <form (ngSubmit)="processCounterTxn()" class="space-y-4 text-xs">
           <div>
-            <label class="bank-label">Amount to {{ opMode === 'DEPOSIT' ? 'Deposit' : 'Withdraw' }} (₹) *</label>
-            <input [(ngModel)]="amount" name="amt" required type="number" min="10" placeholder="0.00" class="bank-input text-xl font-bold text-white" />
+            <label class="bank-label">Amount (₹) *</label>
+            <div class="relative">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-bold text-slate-400 pointer-events-none">₹</span>
+              <input [(ngModel)]="amount" name="amt" required type="number" min="10" placeholder="0.00" 
+                     class="bank-input bank-input-with-currency pl-10 text-lg font-extrabold font-display" 
+                     [ngClass]="opMode === 'DEPOSIT' ? 'text-emerald-700' : 'text-rose-700'" />
+            </div>
           </div>
 
           <!-- Quick Cash Amount Chips -->
           <div class="flex flex-wrap gap-2">
             <button type="button" *ngFor="let p of [500, 1000, 2000, 5000, 10000, 20000]" 
                     (click)="amount = p"
-                    class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700">
+                    class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-amber-50 text-xs font-bold text-slate-700 border border-slate-200 cursor-pointer shadow-2xs">
               ₹{{ p }}
             </button>
           </div>
 
           <div>
             <label class="bank-label">Teller Remarks</label>
-            <input [(ngModel)]="remarks" name="rem" type="text" placeholder="Counter cash transaction (No PIN required)" class="bank-input" />
+            <input [(ngModel)]="remarks" name="rem" type="text" placeholder="Counter cash transaction notes" class="bank-input text-xs" />
           </div>
 
           <button type="submit" [disabled]="!amount || amount <= 0" 
-                  class="w-full py-4 rounded-xl font-bold text-base shadow-xl transition-all flex items-center justify-center gap-2 mt-2"
+                  class="w-full py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer shadow-xs"
                   [ngClass]="opMode === 'DEPOSIT' ? 'bank-btn-success' : 'bank-btn-danger'">
-            <i class="fa-solid" [ngClass]="opMode === 'DEPOSIT' ? 'fa-circle-check' : 'fa-hand-holding-dollar'"></i>
-            Complete Counter {{ opMode === 'DEPOSIT' ? 'Deposit' : 'Withdrawal' }}
+            <i class="fa-solid" [ngClass]="opMode === 'DEPOSIT' ? 'fa-check' : 'fa-hand-holding-dollar'"></i>
+            Complete Counter {{ opMode === 'DEPOSIT' ? 'Deposit' : 'Withdrawal' }} →
           </button>
         </form>
       </div>

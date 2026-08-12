@@ -12,43 +12,53 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
   standalone: true,
   imports: [CommonModule, FormsModule, InrCurrencyPipe],
   template: `
-    <div class="max-w-5xl mx-auto space-y-6 animate-fade-in">
+    <div class="max-w-5xl mx-auto space-y-6 animate-fade-in py-2">
       
-      <!-- Header -->
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-bold text-white flex items-center gap-2.5">
-            <i class="fa-solid fa-file-invoice text-amber-400"></i> Account Statements & Financial History
-          </h1>
-          <p class="text-xs text-slate-400">Filter, search, and export official SBI-formatted PDF and CSV statements</p>
+      <!-- Top Banner Pill & Serif Header -->
+      <div class="text-center space-y-2">
+        <div class="banner-pill">
+          <i class="fa-solid fa-file-invoice"></i> Financial Reporting & Passbook Statements
         </div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-serif tracking-tight">
+          Account Statements
+        </h1>
+        <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+          Review your debits, credits, and closing balances with instant PDF & CSV export capabilities.
+        </p>
+      </div>
+
+      <!-- Action Sub-Header -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-1">
+        <h2 class="text-lg font-bold text-slate-900 font-serif flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-amber-500"></i> Statement Filters & Period
+        </h2>
 
         <div class="flex items-center gap-2">
-          <button (click)="downloadPdf()" [disabled]="loadingPdf()" class="bank-btn-primary text-xs">
-            <i *ngIf="loadingPdf()" class="fa-solid fa-circle-notch fa-spin"></i>
-            <i *ngIf="!loadingPdf()" class="fa-solid fa-file-pdf"></i> Download PDF
+          <button (click)="downloadPdf()" [disabled]="loadingPdf()" class="bank-btn-primary text-xs py-1.5 px-3.5 font-bold cursor-pointer shadow-xs">
+            <i *ngIf="loadingPdf()" class="fa-solid fa-circle-notch fa-spin mr-1"></i>
+            <i *ngIf="!loadingPdf()" class="fa-solid fa-file-pdf mr-1"></i> Export PDF
           </button>
-          <button (click)="downloadCsv()" [disabled]="loadingCsv()" class="bank-btn-secondary text-xs">
-            <i *ngIf="loadingCsv()" class="fa-solid fa-circle-notch fa-spin"></i>
-            <i *ngIf="!loadingCsv()" class="fa-solid fa-file-csv"></i> Download CSV
+          <button (click)="downloadCsv()" [disabled]="loadingCsv()" class="bank-btn-secondary text-xs py-1.5 px-3.5 font-semibold cursor-pointer shadow-2xs">
+            <i *ngIf="loadingCsv()" class="fa-solid fa-circle-notch fa-spin mr-1"></i>
+            <i *ngIf="!loadingCsv()" class="fa-solid fa-file-csv mr-1"></i> Export CSV
           </button>
         </div>
       </div>
 
       <!-- Filters Panel -->
-      <div class="bank-glass p-6 rounded-3xl space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bank-card p-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
           
           <div>
             <label class="bank-label">Select Account</label>
-            <select [(ngModel)]="selectedAccountNo" (ngModelChange)="loadStatement()" class="bank-input">
+            <select [(ngModel)]="selectedAccountNo" (ngModelChange)="loadStatement()" class="bank-input text-xs font-semibold">
               <option *ngFor="let a of accounts()" [value]="a.accountNumber">{{ a.accountNumber }} ({{ a.accountTypeName }})</option>
             </select>
           </div>
 
           <div>
-            <label class="bank-label">Timeframe Period</label>
-            <select [(ngModel)]="timeframe" (ngModelChange)="loadStatement()" class="bank-input">
+            <label class="bank-label">Statement Timeframe</label>
+            <select [(ngModel)]="timeframe" (ngModelChange)="loadStatement()" class="bank-input text-xs font-semibold">
               <option value="7_DAYS">Last 7 Days</option>
               <option value="30_DAYS">Last 30 Days</option>
               <option value="3_MONTHS">Last 3 Months</option>
@@ -59,75 +69,76 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
 
           <div *ngIf="timeframe === 'CUSTOM'">
             <label class="bank-label">Start Date</label>
-            <input [(ngModel)]="startDate" (ngModelChange)="loadStatement()" type="date" class="bank-input" />
+            <input [(ngModel)]="startDate" (ngModelChange)="loadStatement()" type="date" class="bank-input text-xs" />
           </div>
 
           <div *ngIf="timeframe === 'CUSTOM'">
             <label class="bank-label">End Date</label>
-            <input [(ngModel)]="endDate" (ngModelChange)="loadStatement()" type="date" class="bank-input" />
+            <input [(ngModel)]="endDate" (ngModelChange)="loadStatement()" type="date" class="bank-input text-xs" />
           </div>
 
         </div>
       </div>
 
       <!-- Statement Summary Stats Bar -->
-      <div *ngIf="summary()" class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="bank-glass p-4 rounded-2xl">
-          <div class="text-[11px] text-slate-400 uppercase font-semibold">Opening Balance</div>
-          <div class="text-base font-bold text-white mt-1 font-mono">{{ summary()?.openingBalance | inrCurrency }}</div>
+      <div *ngIf="summary()" class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+        <div class="bank-card p-4 space-y-1">
+          <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Opening Balance</div>
+          <div class="text-base font-extrabold text-slate-900 font-display">{{ summary()?.openingBalance | inrCurrency }}</div>
         </div>
-        <div class="bank-glass p-4 rounded-2xl">
-          <div class="text-[11px] text-slate-400 uppercase font-semibold">Total Debits</div>
-          <div class="text-base font-bold text-rose-400 mt-1 font-mono">-{{ summary()?.totalDebits | inrCurrency }}</div>
+        <div class="bank-card p-4 space-y-1">
+          <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Total Debits</div>
+          <div class="text-base font-extrabold text-rose-600 font-display">-{{ summary()?.totalDebits | inrCurrency }}</div>
         </div>
-        <div class="bank-glass p-4 rounded-2xl">
-          <div class="text-[11px] text-slate-400 uppercase font-semibold">Total Credits</div>
-          <div class="text-base font-bold text-emerald-400 mt-1 font-mono">+{{ summary()?.totalCredits | inrCurrency }}</div>
+        <div class="bank-card p-4 space-y-1">
+          <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Total Credits</div>
+          <div class="text-base font-extrabold text-emerald-600 font-display">+{{ summary()?.totalCredits | inrCurrency }}</div>
         </div>
-        <div class="bank-glass p-4 rounded-2xl">
-          <div class="text-[11px] text-slate-400 uppercase font-semibold">Closing Balance</div>
-          <div class="text-base font-bold text-sky-400 mt-1 font-mono">{{ summary()?.closingBalance | inrCurrency }}</div>
+        <div class="bank-card p-4 space-y-1">
+          <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Closing Balance</div>
+          <div class="text-base font-extrabold text-slate-950 font-display">{{ summary()?.closingBalance | inrCurrency }}</div>
         </div>
       </div>
 
       <!-- Statement Table -->
-      <div class="bank-glass p-6 rounded-3xl">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-base font-bold text-white">
-            Transactions ({{ summary()?.transactions?.length || 0 }})
+      <div class="bank-card p-5 space-y-3">
+        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+          <h3 class="text-base font-bold text-slate-900 font-serif flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-amber-500"></i> Ledger Records
           </h3>
+          <span class="pill-dark text-[9px] py-0 px-2.5">{{ summary()?.transactions?.length || 0 }} entries</span>
         </div>
 
-        <div *ngIf="!summary() || summary()?.transactions?.length === 0" class="py-12 text-center text-xs text-slate-400">
-          No transaction entries found for the selected period.
+        <div *ngIf="!summary() || summary()?.transactions?.length === 0" class="py-8 text-center text-xs text-slate-500">
+          No transactions for the selected period.
         </div>
 
         <div *ngIf="summary() && summary()!.transactions.length > 0" class="overflow-x-auto">
           <table class="bank-table">
             <thead>
               <tr>
-                <th>Date & Time</th>
-                <th>Reference ID</th>
+                <th>Date</th>
+                <th>Reference</th>
                 <th>Description</th>
                 <th>Type</th>
                 <th>Amount</th>
-                <th>Balance After</th>
+                <th>Balance</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let txn of summary()!.transactions">
-                <td class="text-xs text-slate-300">{{ txn.createdAt | date:'dd-MMM-yyyy HH:mm' }}</td>
-                <td class="font-mono text-xs text-sky-400">{{ txn.transactionRef }}</td>
-                <td class="text-xs font-medium text-white">{{ txn.description }}</td>
+                <td class="text-xs text-slate-500 whitespace-nowrap">{{ txn.createdAt | date:'dd-MMM-yyyy HH:mm' }}</td>
+                <td class="font-mono text-xs text-slate-700 font-semibold">{{ txn.transactionRef }}</td>
+                <td class="text-xs font-bold text-slate-900">{{ txn.description }}</td>
                 <td>
-                  <span class="badge badge-info text-[10px]">{{ txn.transactionTypeName }}</span>
+                  <span class="badge badge-info text-[9px]">{{ txn.transactionTypeName }}</span>
                 </td>
                 <td>
-                  <span class="font-bold text-xs font-mono" [ngClass]="txn.entryType === 'CREDIT' ? 'text-emerald-400' : 'text-slate-200'">
+                  <span class="font-extrabold text-xs font-mono" [ngClass]="txn.entryType === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900'">
                     {{ txn.entryType === 'CREDIT' ? '+' : '-' }}{{ txn.amount | inrCurrency }}
                   </span>
                 </td>
-                <td class="text-xs text-slate-300 font-mono font-semibold">{{ txn.balanceAfter | inrCurrency }}</td>
+                <td class="text-xs text-slate-600 font-mono font-bold">{{ txn.balanceAfter | inrCurrency }}</td>
               </tr>
             </tbody>
           </table>
@@ -170,6 +181,9 @@ export class StatementsComponent {
     this.transactionService.getStatementData(this.selectedAccountNo, this.timeframe, this.startDate, this.endDate).subscribe({
       next: (res) => {
         if (res.success && res.data) {
+          if (res.data.transactions && res.data.transactions.length > 0) {
+            res.data.transactions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          }
           this.summary.set(res.data);
         }
       }

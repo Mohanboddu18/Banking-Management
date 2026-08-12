@@ -12,7 +12,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
   standalone: true,
   imports: [CommonModule, RouterOutlet, NavbarComponent, SidebarComponent, FooterComponent, ToastComponent],
   template: `
-    <div class="min-h-screen bg-[#070d1e] text-slate-100 flex flex-col font-sans">
+    <div class="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
       
       <!-- Toast Container -->
       <app-toast></app-toast>

@@ -29,6 +29,11 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.bank.onlinebanking.entity.enums.CardStatus;
+import com.bank.onlinebanking.exception.BankingOperationException;
+import com.bank.onlinebanking.exception.InvalidTransactionPinException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
@@ -36,6 +41,8 @@ public class TransactionService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionTypeRepository transactionTypeRepository;
+    private final DebitCardRepository debitCardRepository;
+    private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
     private final ReferenceGenerator referenceGenerator;
     private final NotificationService notificationService;
@@ -52,6 +59,41 @@ public class TransactionService {
             throw new AccountSuspendedException("Cannot deposit to account with status: " + account.getStatus());
         }
 
+        boolean isAtmCardDeposit = "ATM_CARD".equalsIgnoreCase(req.getDepositMethod())
+                || (req.getCardNumber() != null && !req.getCardNumber().trim().isEmpty())
+                || (req.getAtmPin() != null && !req.getAtmPin().trim().isEmpty());
+
+        DebitCard debitCard = null;
+        if (isAtmCardDeposit) {
+            String rawCardNum = req.getCardNumber() != null ? req.getCardNumber().replaceAll("[\\s-]", "") : null;
+            if (rawCardNum != null && !rawCardNum.isEmpty()) {
+                debitCard = debitCardRepository.findByCardNumber(rawCardNum)
+                        .or(() -> debitCardRepository.findAllByAccount_Id(account.getId()).stream().findFirst())
+                        .orElse(null);
+            } else {
+                debitCard = debitCardRepository.findAllByAccount_Id(account.getId()).stream().findFirst().orElse(null);
+            }
+
+            if (debitCard != null) {
+                if (debitCard.getStatus() != CardStatus.ACTIVE) {
+                    throw new BankingOperationException("ATM Card is " + debitCard.getStatus() + ". Only active cards can be used for deposits.");
+                }
+
+                // Validate PIN if provided
+                if (req.getAtmPin() != null && !req.getAtmPin().trim().isEmpty()) {
+                    String pin = req.getAtmPin().trim();
+                    if (debitCard.getPinHash() != null) {
+                        if (!passwordEncoder.matches(pin, debitCard.getPinHash())) {
+                            throw new InvalidTransactionPinException("Incorrect 4-Digit ATM PIN for card " + debitCard.getMaskedCardNumber());
+                        }
+                    } else {
+                        // Fallback to customer's transaction pin
+                        authService.validateCustomerPin(account.getCustomer(), pin);
+                    }
+                }
+            }
+        }
+
         BigDecimal oldBalance = account.getBalance();
         BigDecimal newBalance = oldBalance.add(req.getAmount());
         account.setBalance(newBalance);
@@ -62,7 +104,9 @@ public class TransactionService {
                 .orElseGet(() -> transactionTypeRepository.save(TransactionType.builder().code("DEPOSIT").name("Cash / Direct Deposit").build()));
 
         String txnRef = referenceGenerator.generateTransactionRef();
-        String desc = req.getDescription() != null && !req.getDescription().isEmpty() ? req.getDescription() : "Cash Deposit";
+        String desc = req.getDescription() != null && !req.getDescription().isEmpty()
+                ? req.getDescription()
+                : (debitCard != null ? "ATM Card Deposit (" + debitCard.getMaskedCardNumber() + ")" : "Cash Deposit");
 
         Transaction txn = Transaction.builder()
                 .transactionRef(txnRef)
@@ -78,7 +122,7 @@ public class TransactionService {
 
         auditLogService.logAction(account.getCustomer().getUser().getId(), username != null ? username : "CASHIER",
                 "TRANSACTION", "DEPOSIT", "Account", account.getAccountNumber(), ipAddress, "SUCCESS",
-                "Deposited ₹" + req.getAmount() + " into " + account.getAccountNumber() + ". New Balance: ₹" + newBalance);
+                "Deposited ₹" + req.getAmount() + " into " + account.getAccountNumber() + ". New Balance: ₹" + newBalance + (debitCard != null ? " [ATM Card: " + debitCard.getMaskedCardNumber() + "]" : ""));
 
         notificationService.createNotification(account.getCustomer(), "Account Credited",
                 "₹" + req.getAmount() + " has been credited to your account " + account.getAccountNumber() + ". Available Balance: ₹" + newBalance + " (Ref: " + txnRef + ")",
@@ -101,8 +145,41 @@ public class TransactionService {
             throw new AccountSuspendedException("Access Denied: You do not own this account");
         }
 
-        // Validate Transaction PIN
-        authService.validateCustomerPin(customer, req.getTransactionPin());
+        String pin = req.getAtmPin() != null && !req.getAtmPin().trim().isEmpty()
+                ? req.getAtmPin().trim()
+                : req.getTransactionPin();
+
+        if (pin == null || pin.trim().isEmpty()) {
+            throw new InvalidTransactionPinException("Transaction / ATM PIN is required to authorize withdrawal");
+        }
+
+        DebitCard debitCard = null;
+        String rawCardNum = req.getCardNumber() != null ? req.getCardNumber().replaceAll("[\\s-]", "") : null;
+        if (rawCardNum != null && !rawCardNum.isEmpty()) {
+            debitCard = debitCardRepository.findByCardNumber(rawCardNum)
+                    .or(() -> debitCardRepository.findAllByAccount_Id(account.getId()).stream().findFirst())
+                    .orElse(null);
+        } else {
+            debitCard = debitCardRepository.findAllByAccount_Id(account.getId()).stream().findFirst().orElse(null);
+        }
+
+        if (debitCard != null) {
+            if (debitCard.getStatus() != CardStatus.ACTIVE) {
+                throw new BankingOperationException("ATM Card is " + debitCard.getStatus() + ". Only active cards can be used for withdrawals.");
+            }
+            if (debitCard.getDailyLimit() != null && req.getAmount().compareTo(debitCard.getDailyLimit()) > 0) {
+                throw new BankingOperationException("Amount exceeds daily ATM withdrawal limit of ₹" + debitCard.getDailyLimit());
+            }
+            if (debitCard.getPinHash() != null) {
+                if (!passwordEncoder.matches(pin, debitCard.getPinHash())) {
+                    throw new InvalidTransactionPinException("Incorrect 4-Digit ATM PIN for card " + debitCard.getMaskedCardNumber());
+                }
+            } else {
+                authService.validateCustomerPin(customer, pin);
+            }
+        } else {
+            authService.validateCustomerPin(customer, pin);
+        }
 
         // Check Balance
         if (account.getBalance().compareTo(req.getAmount()) < 0) {
@@ -119,6 +196,10 @@ public class TransactionService {
                 .orElseGet(() -> transactionTypeRepository.save(TransactionType.builder().code("WITHDRAWAL").name("Cash / ATM Withdrawal").build()));
 
         String txnRef = referenceGenerator.generateTransactionRef();
+        String desc = req.getDescription() != null && !req.getDescription().isEmpty()
+                ? req.getDescription()
+                : (debitCard != null ? "ATM Cash Withdrawal (" + debitCard.getMaskedCardNumber() + ")" : "ATM Cash Withdrawal");
+
         Transaction txn = Transaction.builder()
                 .transactionRef(txnRef)
                 .fromAccount(account)
@@ -126,14 +207,14 @@ public class TransactionService {
                 .amount(req.getAmount())
                 .balanceAfter(newBalance)
                 .senderBalanceAfter(newBalance)
-                .description("Cash Withdrawal")
+                .description(desc)
                 .status(TransactionStatus.SUCCESS)
                 .build();
         txn = transactionRepository.save(txn);
 
         auditLogService.logAction(customer.getUser().getId(), username,
                 "ROLE_CUSTOMER", "WITHDRAWAL", "Account", account.getAccountNumber(), ipAddress, "SUCCESS",
-                "Withdrawn ₹" + req.getAmount() + " from " + account.getAccountNumber() + ". Balance After: ₹" + newBalance);
+                "Withdrawn ₹" + req.getAmount() + " from " + account.getAccountNumber() + ". Balance After: ₹" + newBalance + (debitCard != null ? " [ATM Card: " + debitCard.getMaskedCardNumber() + "]" : ""));
 
         notificationService.createNotification(customer, "Account Debited",
                 "₹" + req.getAmount() + " has been debited from your account " + account.getAccountNumber() + ". Available Balance: ₹" + newBalance + " (Ref: " + txnRef + ")",
@@ -260,6 +341,10 @@ public class TransactionService {
 
         List<TransactionResponse> txResponses = transactions.stream()
                 .map(t -> mapToTransactionResponse(t, accountNumber))
+                .sorted((a, b) -> {
+                    if (a.getCreatedAt() == null || b.getCreatedAt() == null) return 0;
+                    return b.getCreatedAt().compareTo(a.getCreatedAt());
+                })
                 .collect(Collectors.toList());
 
         for (TransactionResponse r : txResponses) {

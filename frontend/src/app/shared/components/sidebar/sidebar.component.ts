@@ -8,179 +8,177 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <aside class="w-64 bg-[#0b1329] border-r border-white/10 flex flex-col justify-between h-[calc(100vh-4rem)] sticky top-16 transition-all duration-300 z-30"
+    <aside class="w-60 bg-white border-r border-slate-200 flex flex-col justify-between h-[calc(100vh-4rem)] sticky top-16 transition-all duration-200 z-30 shadow-xs"
            [ngClass]="{ 'hidden lg:flex': !isOpen, 'flex absolute lg:static left-0 z-50 h-screen': isOpen }">
       
       <!-- Nav Links Container -->
-      <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-6">
+      <div class="p-3 overflow-y-auto flex-1 flex flex-col gap-3">
 
         <!-- ================= CUSTOMER PORTAL ================= -->
-        <div *ngIf="authService.isCustomer()" class="flex flex-col gap-1">
-          <div class="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Core Banking</div>
-          <a routerLink="/customer/dashboard" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold" 
+        <div *ngIf="authService.isCustomer()" class="flex flex-col gap-0.5">
+          <div class="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Core Banking</div>
+          <a routerLink="/customer/dashboard" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500" 
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-chart-pie text-base w-5 text-sky-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-chart-pie w-4 text-amber-500"></i>
             <span>Dashboard</span>
           </a>
-          <a routerLink="/customer/transfer" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a routerLink="/customer/transfer" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-money-bill-transfer text-base w-5 text-emerald-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-money-bill-transfer w-4 text-emerald-600"></i>
             <span>Transfer Money</span>
           </a>
-          <a routerLink="/customer/deposit-withdraw" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a routerLink="/customer/deposit-withdraw" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-vault text-base w-5 text-amber-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-vault w-4 text-amber-500"></i>
             <span>Deposit & Cash</span>
           </a>
-          <a routerLink="/customer/cards-cheques" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a routerLink="/customer/cards-cheques" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-credit-card text-base w-5 text-indigo-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-credit-card w-4 text-indigo-600"></i>
             <span>Cards & Cheques</span>
           </a>
-          <a routerLink="/customer/loans" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a routerLink="/customer/loans" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-hand-holding-dollar text-base w-5 text-rose-400"></i>
-            <span>Loans & EMI Hub</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-hand-holding-dollar w-4 text-rose-600"></i>
+            <span>Loans & EMI</span>
           </a>
 
-          <div class="px-3 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Value Added Services</div>
-          <a routerLink="/customer/vas/qr" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <div class="px-3 pt-3 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Services</div>
+          <a routerLink="/customer/vas/qr" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-qrcode text-base w-5 text-cyan-400"></i>
-            <span>Scan & Pay QR</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-qrcode w-4 text-cyan-600"></i>
+            <span>Scan QR</span>
           </a>
-          <a routerLink="/customer/vas/recharge" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a routerLink="/customer/vas/recharge" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-mobile-screen-button text-base w-5 text-teal-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-mobile-screen-button w-4 text-teal-600"></i>
             <span>Mobile Recharge</span>
           </a>
-          <a routerLink="/customer/vas/movies" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a routerLink="/customer/vas/movies" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-film text-base w-5 text-fuchsia-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-film w-4 text-purple-600"></i>
             <span>Movie Tickets</span>
           </a>
 
-          <div class="px-3 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Reports & Support</div>
-          <a routerLink="/customer/statements" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <div class="px-3 pt-3 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Reports</div>
+          <a routerLink="/customer/statements" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-file-invoice text-base w-5 text-amber-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-file-invoice w-4 text-amber-500"></i>
             <span>Bank Statements</span>
           </a>
-          <a routerLink="/customer/complaints" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a routerLink="/customer/complaints" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-headset text-base w-5 text-blue-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-headset w-4 text-blue-600"></i>
             <span>Complaints Desk</span>
           </a>
-          <a routerLink="/customer/profile" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a routerLink="/customer/profile" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-user-gear text-base w-5 text-slate-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-user-gear w-4 text-slate-500"></i>
             <span>Profile & Security</span>
           </a>
         </div>
 
         <!-- ================= EMPLOYEE PORTAL ================= -->
-        <div *ngIf="authService.isEmployee() && !authService.isManager()" class="flex flex-col gap-1">
-          <div class="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Staff Operations</div>
+        <div *ngIf="authService.isEmployee() && !authService.isManager()" class="flex flex-col gap-0.5">
+          <div class="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Staff Portal</div>
           
-          <a routerLink="/employee/dashboard" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a routerLink="/employee/dashboard" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-gauge-high text-base w-5 text-sky-400"></i>
-            <span>Staff Dashboard</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-gauge-high w-4 text-amber-500"></i>
+            <span>Dashboard</span>
           </a>
 
           <!-- Cashier Terminal (Only Cashier / Asst Manager) -->
-          <a *ngIf="authService.isCashier()" routerLink="/employee/cashier" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a *ngIf="authService.isCashier()" routerLink="/employee/cashier" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-cash-register text-base w-5 text-emerald-400"></i>
-            <span>Cashier Terminal</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-cash-register w-4 text-emerald-600"></i>
+            <span>Cashier Desk</span>
           </a>
 
           <!-- Loan Verification (Only Loan Officer / Asst Manager) -->
-          <a *ngIf="authService.isLoanOfficer()" routerLink="/employee/loans" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a *ngIf="authService.isLoanOfficer()" routerLink="/employee/loans" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-file-signature text-base w-5 text-rose-400"></i>
-            <span>Loan Verification</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-file-signature w-4 text-rose-600"></i>
+            <span>Loan Desk</span>
           </a>
 
           <!-- Cheque Issuance (Only Operations / Asst Manager) -->
-          <a *ngIf="authService.isChequeOfficer()" routerLink="/employee/cheques" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a *ngIf="authService.isChequeOfficer()" routerLink="/employee/cheques" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-money-check text-base w-5 text-indigo-400"></i>
-            <span>Cheque Issuance</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-money-check w-4 text-indigo-600"></i>
+            <span>Cheque Desk</span>
           </a>
 
           <!-- Support Desk (Only Customer Support / Asst Manager) -->
-          <a *ngIf="authService.isSupportOfficer()" routerLink="/employee/support" routerLinkActive="bg-sky-600/20 text-sky-400 border-sky-500 font-semibold"
+          <a *ngIf="authService.isSupportOfficer()" routerLink="/employee/support" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-headset text-base w-5 text-amber-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-headset w-4 text-amber-500"></i>
             <span>Support Desk</span>
           </a>
         </div>
 
         <!-- ================= MANAGER PORTAL ================= -->
-        <div *ngIf="authService.isManager()" class="flex flex-col gap-1">
-          <div class="px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Executive Governance</div>
-          <a routerLink="/manager/dashboard" routerLinkActive="bg-purple-600/20 text-purple-400 border-purple-500 font-semibold"
+        <div *ngIf="authService.isManager()" class="flex flex-col gap-0.5">
+          <div class="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Management</div>
+          <a routerLink="/manager/dashboard" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-chart-line text-base w-5 text-purple-400"></i>
-            <span>Executive Analytics</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-chart-line w-4 text-purple-600"></i>
+            <span>Overview</span>
           </a>
-          <a routerLink="/manager/employees" routerLinkActive="bg-purple-600/20 text-purple-400 border-purple-500 font-semibold"
+          <a routerLink="/manager/employees" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-users-gear text-base w-5 text-sky-400"></i>
-            <span>Employee Staffing</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-users-gear w-4 text-sky-600"></i>
+            <span>Employees</span>
           </a>
-          <a routerLink="/manager/customers" routerLinkActive="bg-purple-600/20 text-purple-400 border-purple-500 font-semibold"
+          <a routerLink="/manager/customers" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-user-check text-base w-5 text-emerald-400"></i>
-            <span>Customer Accounts</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-user-check w-4 text-emerald-600"></i>
+            <span>Customers</span>
           </a>
-          <a routerLink="/manager/loans" routerLinkActive="bg-purple-600/20 text-purple-400 border-purple-500 font-semibold"
+          <a routerLink="/manager/loans" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-stamp text-base w-5 text-rose-400"></i>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-stamp w-4 text-rose-600"></i>
             <span>Loan Sanctions</span>
           </a>
-          <a routerLink="/manager/bank-charges" routerLinkActive="bg-purple-600/20 text-purple-400 border-purple-500 font-semibold"
+          <a routerLink="/manager/bank-charges" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-sliders text-base w-5 text-amber-400"></i>
-            <span>Bank Charges Rules</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-sliders w-4 text-amber-500"></i>
+            <span>Charges Rules</span>
           </a>
-          <a routerLink="/manager/audit-logs" routerLinkActive="bg-purple-600/20 text-purple-400 border-purple-500 font-semibold"
+          <a routerLink="/manager/audit-logs" routerLinkActive="bg-amber-50 text-amber-950 font-bold border-l-2 border-amber-500"
              (click)="closeOnMobile()"
-             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-white/5 border border-transparent transition-all">
-            <i class="fa-solid fa-clock-rotate-left text-base w-5 text-indigo-400"></i>
-            <span>System Audit Logs</span>
+             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors">
+            <i class="fa-solid fa-clock-rotate-left w-4 text-indigo-600"></i>
+            <span>Audit Logs</span>
           </a>
         </div>
       </div>
 
       <!-- Footer Info -->
-      <div class="p-4 border-t border-white/10 bg-slate-950/40">
-        <div class="flex items-center justify-between text-[11px] text-slate-500">
-          <span>Simulation Mode</span>
-          <span class="text-emerald-400 font-semibold">v1.0.0</span>
-        </div>
+      <div class="p-3 border-t border-slate-200 text-[10px] text-slate-500 flex items-center justify-between">
+        <span class="font-bold text-slate-700">Godavari Bank</span>
+        <span class="pill-green text-[9px] py-0 px-2">Online</span>
       </div>
     </aside>
   `

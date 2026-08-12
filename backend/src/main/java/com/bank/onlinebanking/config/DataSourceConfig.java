@@ -9,74 +9,41 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
-import java.net.InetAddress;
 
 @Configuration
 @Slf4j
 public class DataSourceConfig {
 
-    @Value("${spring.datasource.url:jdbc:h2:mem:bankingdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL}")
+    @Value("${spring.datasource.url:jdbc:mysql://mysql-2b7feb4e-mohanboddu18-d9b5.g.aivencloud.com:20198/defaultdb?useSSL=true&trustServerCertificate=true&allowPublicKeyRetrieval=true&serverTimezone=UTC}")
     private String dbUrl;
 
-    @Value("${spring.datasource.username:sa}")
+    @Value("${spring.datasource.username:avnadmin}")
     private String username;
 
-    @Value("${spring.datasource.password:}")
+    @Value("${spring.datasource.password:mohan}")
     private String password;
 
-    @Value("${spring.datasource.driver-class-name:org.h2.Driver}")
+    @Value("${spring.datasource.driver-class-name:com.mysql.cj.jdbc.Driver}")
     private String driverClassName;
 
     @Bean
     @Primary
     public DataSource dataSource() {
-        boolean useH2Fallback = false;
-
-        if (dbUrl != null && dbUrl.startsWith("jdbc:mysql://")) {
-            try {
-                String cleanUrl = dbUrl.substring(13); // strip jdbc:mysql://
-                int slashIdx = cleanUrl.indexOf("/");
-                int colonIdx = cleanUrl.indexOf(":");
-                String host = cleanUrl;
-                if (colonIdx != -1 && (slashIdx == -1 || colonIdx < slashIdx)) {
-                    host = cleanUrl.substring(0, colonIdx);
-                } else if (slashIdx != -1) {
-                    host = cleanUrl.substring(0, slashIdx);
-                }
-
-                log.info("Testing DNS reachability for MySQL database host: [{}]", host);
-                InetAddress.getByName(host);
-                log.info("Database host [{}] DNS resolution succeeded. Connecting to MySQL.", host);
-            } catch (Exception e) {
-                log.warn("Database host in DB_URL is unreachable ({}: {}). Automatically falling back to H2 in-memory database!",
-                        dbUrl, e.getMessage());
-                useH2Fallback = true;
-            }
-        }
+        log.info("Initializing Aiven MySQL DataSource with URL: {}", dbUrl);
 
         HikariConfig config = new HikariConfig();
-        if (useH2Fallback || dbUrl == null || dbUrl.contains("h2")) {
-            log.info("Initializing H2 In-Memory DataSource (MODE=MySQL)...");
-            config.setJdbcUrl("jdbc:h2:mem:bankingdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL");
-            config.setUsername("sa");
-            config.setPassword("");
-            config.setDriverClassName("org.h2.Driver");
-        } else {
-            log.info("Initializing DataSource with URL: {}", dbUrl);
-            config.setJdbcUrl(dbUrl);
-            config.setUsername(username);
-            config.setPassword(password);
-            if (driverClassName != null && !driverClassName.isEmpty() && !"org.h2.Driver".equals(driverClassName)) {
-                config.setDriverClassName(driverClassName);
-            } else {
-                config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-            }
-        }
+        config.setJdbcUrl(dbUrl);
+        config.setUsername(username);
+        config.setPassword(password);
+        config.setDriverClassName(driverClassName != null ? driverClassName : "com.mysql.cj.jdbc.Driver");
 
+        // HikariCP connection pool settings optimized for cloud MySQL
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(2);
         config.setIdleTimeout(30000);
-        config.setConnectionTimeout(10000);
+        config.setConnectionTimeout(30000);
+        config.setValidationTimeout(5000);
+        config.setInitializationFailTimeout(60000); // Allow up to 60s for Aiven MySQL DNS / rebuilding startup
 
         return new HikariDataSource(config);
     }

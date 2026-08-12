@@ -14,7 +14,7 @@ services:
       - key: PORT
         value: 8080
       - key: DB_URL
-        value: jdbc:mysql://mysql-2b7feb4e-mohanboddu18-d9b5.g.aivencloud.com:20198/defaultdb?useSSL=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
+        value: jdbc:mysql://mysql-2b7feb4e-mohanboddu18-d9b5.g.aivencloud.com:20198/defaultdb?useSSL=true&trustServerCertificate=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - key: DB_USERNAME
         value: avnadmin
       - key: DB_PASSWORD
@@ -24,4 +24,4 @@ services:
       - key: HIBERNATE_DDL_AUTO
         value: update
       - key: SQL_INIT_MODE
-        value: always
+        value: never

@@ -22,7 +22,7 @@ spring:
       format_sql: true
   sql:
     init:
-      mode: ${SQL_INIT_MODE:always}
+      mode: ${SQL_INIT_MODE:never}
 
 bank:
   app:

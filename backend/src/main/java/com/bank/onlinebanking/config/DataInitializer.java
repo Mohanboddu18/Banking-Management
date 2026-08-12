@@ -55,109 +55,110 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (roleRepository.count() > 0 && userRepository.count() > 0) {
-            log.info("Database already seeded with demo data. Skipping initialization.");
-            return;
-        }
+        try {
+            if (userRepository.count() > 0) {
+                log.info("Database already seeded with demo data. Skipping initialization.");
+                return;
+            }
 
-        log.info("Initializing Online Banking Database with SBI-inspired Demo Data...");
+            log.info("Initializing Online Banking Database with SBI-inspired Demo Data...");
 
-        // 1. Roles
-        Map<RoleName, Role> roles = new EnumMap<>(RoleName.class);
-        for (RoleName rn : RoleName.values()) {
-            Role r = roleRepository.save(Role.builder()
-                    .name(rn)
-                    .description(rn.name().replace("ROLE_", "") + " role")
-                    .build());
-            roles.put(rn, r);
-        }
+            // 1. Roles
+            Map<RoleName, Role> roles = new EnumMap<>(RoleName.class);
+            for (RoleName rn : RoleName.values()) {
+                Role r = roleRepository.findByName(rn).orElseGet(() -> roleRepository.save(Role.builder()
+                        .name(rn)
+                        .description(rn.name().replace("ROLE_", "") + " role")
+                        .build()));
+                roles.put(rn, r);
+            }
 
-        // 2. Account Types
-        AccountType savings = accountTypeRepository.save(AccountType.builder()
-                .code("SAVINGS")
-                .name("Regular Savings Account")
-                .description("Standard interest bearing retail savings account")
-                .minBalance(BigDecimal.valueOf(3000.00))
-                .interestRate(BigDecimal.valueOf(3.50))
-                .dailyTransferLimit(BigDecimal.valueOf(100000.00))
-                .build());
+            // 2. Account Types
+            AccountType savings = accountTypeRepository.findByCode("SAVINGS").orElseGet(() -> accountTypeRepository.save(AccountType.builder()
+                    .code("SAVINGS")
+                    .name("Regular Savings Account")
+                    .description("Standard interest bearing retail savings account")
+                    .minBalance(BigDecimal.valueOf(3000.00))
+                    .interestRate(BigDecimal.valueOf(3.50))
+                    .dailyTransferLimit(BigDecimal.valueOf(100000.00))
+                    .build()));
 
-        AccountType current = accountTypeRepository.save(AccountType.builder()
-                .code("CURRENT")
-                .name("Commercial Current Account")
-                .description("High volume business account with zero interest")
-                .minBalance(BigDecimal.valueOf(10000.00))
-                .interestRate(BigDecimal.ZERO)
-                .dailyTransferLimit(BigDecimal.valueOf(500000.00))
-                .build());
+            AccountType current = accountTypeRepository.findByCode("CURRENT").orElseGet(() -> accountTypeRepository.save(AccountType.builder()
+                    .code("CURRENT")
+                    .name("Commercial Current Account")
+                    .description("High volume business account with zero interest")
+                    .minBalance(BigDecimal.valueOf(10000.00))
+                    .interestRate(BigDecimal.ZERO)
+                    .dailyTransferLimit(BigDecimal.valueOf(500000.00))
+                    .build()));
 
-        AccountType salary = accountTypeRepository.save(AccountType.builder()
-                .code("SALARY")
-                .name("Corporate Salary Account")
-                .description("Zero balance payroll account with preferential rates")
-                .minBalance(BigDecimal.ZERO)
-                .interestRate(BigDecimal.valueOf(4.00))
-                .dailyTransferLimit(BigDecimal.valueOf(200000.00))
-                .build());
+            AccountType salary = accountTypeRepository.findByCode("SALARY").orElseGet(() -> accountTypeRepository.save(AccountType.builder()
+                    .code("SALARY")
+                    .name("Corporate Salary Account")
+                    .description("Zero balance payroll account with preferential rates")
+                    .minBalance(BigDecimal.ZERO)
+                    .interestRate(BigDecimal.valueOf(4.00))
+                    .dailyTransferLimit(BigDecimal.valueOf(200000.00))
+                    .build()));
 
-        // 3. Transaction Types
-        List<String> txnCodes = List.of(
-                "DEPOSIT", "WITHDRAWAL", "P2P_TRANSFER", "QR_PAYMENT", "CARD_PAYMENT",
-                "MOBILE_RECHARGE", "MOVIE_BOOKING", "LOAN_DISBURSEMENT", "EMI_PAYMENT", "BANK_CHARGE", "REFUND"
-        );
-        Map<String, TransactionType> txnTypes = new HashMap<>();
-        for (String code : txnCodes) {
-            TransactionType tt = transactionTypeRepository.save(TransactionType.builder()
-                    .code(code)
-                    .name(code.replace("_", " "))
-                    .build());
-            txnTypes.put(code, tt);
-        }
+            // 3. Transaction Types
+            List<String> txnCodes = List.of(
+                    "DEPOSIT", "WITHDRAWAL", "P2P_TRANSFER", "QR_PAYMENT", "CARD_PAYMENT",
+                    "MOBILE_RECHARGE", "MOVIE_BOOKING", "LOAN_DISBURSEMENT", "EMI_PAYMENT", "BANK_CHARGE", "REFUND"
+            );
+            Map<String, TransactionType> txnTypes = new HashMap<>();
+            for (String code : txnCodes) {
+                TransactionType tt = transactionTypeRepository.findByCode(code).orElseGet(() -> transactionTypeRepository.save(TransactionType.builder()
+                        .code(code)
+                        .name(code.replace("_", " "))
+                        .build()));
+                txnTypes.put(code, tt);
+            }
 
-        // 4. Loan Types
-        LoanType personalLoan = loanTypeRepository.save(LoanType.builder()
-                .code("PERSONAL")
-                .name("SBI Quick Personal Loan")
-                .interestRate(BigDecimal.valueOf(11.50))
-                .minAmount(BigDecimal.valueOf(25000.00))
-                .maxAmount(BigDecimal.valueOf(1500000.00))
-                .minTenureMonths(6)
-                .maxTenureMonths(60)
-                .processingFeePercent(BigDecimal.valueOf(1.00))
-                .build());
+            // 4. Loan Types
+            LoanType personalLoan = loanTypeRepository.findByCode("PERSONAL").orElseGet(() -> loanTypeRepository.save(LoanType.builder()
+                    .code("PERSONAL")
+                    .name("SBI Quick Personal Loan")
+                    .interestRate(BigDecimal.valueOf(11.50))
+                    .minAmount(BigDecimal.valueOf(25000.00))
+                    .maxAmount(BigDecimal.valueOf(1500000.00))
+                    .minTenureMonths(6)
+                    .maxTenureMonths(60)
+                    .processingFeePercent(BigDecimal.valueOf(1.00))
+                    .build()));
 
-        LoanType homeLoan = loanTypeRepository.save(LoanType.builder()
-                .code("HOME")
-                .name("SBI Regular Home Loan")
-                .interestRate(BigDecimal.valueOf(8.50))
-                .minAmount(BigDecimal.valueOf(500000.00))
-                .maxAmount(BigDecimal.valueOf(10000000.00))
-                .minTenureMonths(12)
-                .maxTenureMonths(360)
-                .processingFeePercent(BigDecimal.valueOf(0.50))
-                .build());
+            LoanType homeLoan = loanTypeRepository.findByCode("HOME").orElseGet(() -> loanTypeRepository.save(LoanType.builder()
+                    .code("HOME")
+                    .name("SBI Regular Home Loan")
+                    .interestRate(BigDecimal.valueOf(8.50))
+                    .minAmount(BigDecimal.valueOf(500000.00))
+                    .maxAmount(BigDecimal.valueOf(10000000.00))
+                    .minTenureMonths(12)
+                    .maxTenureMonths(360)
+                    .processingFeePercent(BigDecimal.valueOf(0.50))
+                    .build()));
 
-        LoanType educationLoan = loanTypeRepository.save(LoanType.builder()
-                .code("EDUCATION")
-                .name("SBI Scholar Education Loan")
-                .interestRate(BigDecimal.valueOf(9.00))
-                .minAmount(BigDecimal.valueOf(100000.00))
-                .maxAmount(BigDecimal.valueOf(5000000.00))
-                .minTenureMonths(12)
-                .maxTenureMonths(180)
-                .processingFeePercent(BigDecimal.ZERO)
-                .build());
+            LoanType educationLoan = loanTypeRepository.findByCode("EDUCATION").orElseGet(() -> loanTypeRepository.save(LoanType.builder()
+                    .code("EDUCATION")
+                    .name("SBI Scholar Education Loan")
+                    .interestRate(BigDecimal.valueOf(9.00))
+                    .minAmount(BigDecimal.valueOf(100000.00))
+                    .maxAmount(BigDecimal.valueOf(5000000.00))
+                    .minTenureMonths(12)
+                    .maxTenureMonths(180)
+                    .processingFeePercent(BigDecimal.ZERO)
+                    .build()));
 
-        LoanType vehicleLoan = loanTypeRepository.save(LoanType.builder()
-                .code("VEHICLE")
-                .name("SBI New Car Loan")
-                .interestRate(BigDecimal.valueOf(8.80))
-                .minAmount(BigDecimal.valueOf(100000.00))
-                .maxAmount(BigDecimal.valueOf(3000000.00))
-                .minTenureMonths(12)
-                .maxTenureMonths(84)
-                .processingFeePercent(BigDecimal.valueOf(0.75))
-                .build());
+            LoanType vehicleLoan = loanTypeRepository.findByCode("VEHICLE").orElseGet(() -> loanTypeRepository.save(LoanType.builder()
+                    .code("VEHICLE")
+                    .name("SBI New Car Loan")
+                    .interestRate(BigDecimal.valueOf(8.80))
+                    .minAmount(BigDecimal.valueOf(100000.00))
+                    .maxAmount(BigDecimal.valueOf(3000000.00))
+                    .minTenureMonths(12)
+                    .maxTenureMonths(84)
+                    .processingFeePercent(BigDecimal.valueOf(0.75))
+                    .build()));
 
         // 5. Configurable Bank Charges
         bankChargeRepository.save(BankCharge.builder()
@@ -535,6 +536,9 @@ public class DataInitializer implements CommandLineRunner {
 
         log.info("Database initialization completed successfully!");
         log.info("Demo Credentials: Manager: manager/Password@123 | Customer: customer1/Password@123 (PIN: 1234)");
+        } catch (Exception e) {
+            log.error("Data initialization encountered an error (continuing startup): {}", e.getMessage(), e);
+        }
     }
 
     private void createEmployeeUser(String username, String fullName, String email, String mobile,

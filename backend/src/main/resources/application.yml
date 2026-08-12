@@ -5,8 +5,8 @@ spring:
   application:
     name: online-banking
   datasource:
-    url: ${DB_URL:${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/banking_management?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}}
-    username: ${DB_USERNAME:${SPRING_DATASOURCE_USERNAME:root}}
+    url: ${DB_URL:${SPRING_DATASOURCE_URL:jdbc:mysql://mysql-2b7feb4e-mohanboddu18-d9b5.g.aivencloud.com:20198/defaultdb?useSSL=true&trustServerCertificate=true&allowPublicKeyRetrieval=true&serverTimezone=UTC}}
+    username: ${DB_USERNAME:${SPRING_DATASOURCE_USERNAME:avnadmin}}
     password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:mohan}}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:

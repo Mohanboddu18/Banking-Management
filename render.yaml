@@ -14,11 +14,13 @@ services:
       - key: PORT
         value: 8080
       - key: DB_URL
-        value: jdbc:mysql://mysql-2b7feb4e-mohanboddu18-d9b5.g.aivencloud.com:20198/defaultdb?useSSL=true&trustServerCertificate=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
+        value: jdbc:h2:mem:bankingdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
       - key: DB_USERNAME
-        value: avnadmin
+        value: sa
       - key: DB_PASSWORD
-        sync: false # Enter your Aiven MySQL Password in Render Dashboard
+        value: ""
+      - key: DB_DRIVER
+        value: org.h2.Driver
       - key: JWT_SECRET
         generateValue: true
       - key: HIBERNATE_DDL_AUTO

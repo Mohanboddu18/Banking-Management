@@ -67,7 +67,7 @@ public class SecurityConfig {
                         // Public Backend REST endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/actuator/**", "/actuator/health").permitAll()
+                        .requestMatchers("/actuator/**", "/actuator/health", "/api/health").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/vas/movies/cities", "/api/vas/movies/shows/**", "/api/vas/recharge/operators").permitAll()
                         

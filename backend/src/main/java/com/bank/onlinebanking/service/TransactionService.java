@@ -63,6 +63,35 @@ public class TransactionService {
                 || (req.getCardNumber() != null && !req.getCardNumber().trim().isEmpty())
                 || (req.getAtmPin() != null && !req.getAtmPin().trim().isEmpty());
 
+        boolean isCashier = username != null && !account.getCustomer().getUser().getUsername().equals(username);
+
+        BigDecimal maxPerTxn = isAtmCardDeposit ? BigDecimal.valueOf(200000) : BigDecimal.valueOf(500000);
+        BigDecimal maxDaily = isAtmCardDeposit ? BigDecimal.valueOf(200000) : (isCashier ? BigDecimal.valueOf(1000000) : BigDecimal.valueOf(1000000));
+
+        if (req.getAmount().compareTo(maxPerTxn) > 0) {
+            String methodText = isAtmCardDeposit ? "ATM Card Deposit" : "Direct Cash Deposit";
+            throw new BankingOperationException(
+                methodText + " amount ₹" + String.format("%,.2f", req.getAmount()) + 
+                " exceeds maximum per-transaction limit of ₹" + String.format("%,.2f", maxPerTxn) + "!"
+            );
+        }
+
+        LocalDateTime twentyFourHoursAgo = LocalDateTime.now().minusHours(24);
+        BigDecimal existing24hDeposits = isAtmCardDeposit
+                ? transactionRepository.sumAtmCardDepositsForAccountSince(account.getId(), twentyFourHoursAgo)
+                : transactionRepository.sumDepositsForAccountSince(account.getId(), twentyFourHoursAgo);
+
+        if (existing24hDeposits.add(req.getAmount()).compareTo(maxDaily) > 0) {
+            BigDecimal remaining = maxDaily.subtract(existing24hDeposits);
+            if (remaining.compareTo(BigDecimal.ZERO) < 0) remaining = BigDecimal.ZERO;
+            String channelStr = isAtmCardDeposit ? "ATM Debit Card" : "Direct Cash";
+            throw new BankingOperationException(
+                "24-Hour " + channelStr + " deposit limit of ₹" + String.format("%,.2f", maxDaily) + " exceeded for account " + account.getAccountNumber() + 
+                "! Total " + channelStr + " deposits in last 24 hours: ₹" + String.format("%,.2f", existing24hDeposits) + 
+                ". Remaining limit: ₹" + String.format("%,.2f", remaining)
+            );
+        }
+
         DebitCard debitCard = null;
         if (isAtmCardDeposit) {
             String rawCardNum = req.getCardNumber() != null ? req.getCardNumber().replaceAll("[\\s-]", "") : null;
@@ -163,12 +192,27 @@ public class TransactionService {
             debitCard = debitCardRepository.findAllByAccount_Id(account.getId()).stream().findFirst().orElse(null);
         }
 
+        BigDecimal maxPerTxn = BigDecimal.valueOf(50000);
+        if (req.getAmount().compareTo(maxPerTxn) > 0) {
+            throw new BankingOperationException("ATM cash withdrawal cannot exceed ₹50,000 per transaction!");
+        }
+
+        LocalDateTime twentyFourHoursAgo = LocalDateTime.now().minusHours(24);
+        BigDecimal existing24hWithdrawals = transactionRepository.sumWithdrawalsForAccountSince(account.getId(), twentyFourHoursAgo);
+        BigDecimal maxDaily = (debitCard != null && debitCard.getDailyLimit() != null) ? debitCard.getDailyLimit() : BigDecimal.valueOf(100000);
+
+        if (existing24hWithdrawals.add(req.getAmount()).compareTo(maxDaily) > 0) {
+            BigDecimal remaining = maxDaily.subtract(existing24hWithdrawals);
+            if (remaining.compareTo(BigDecimal.ZERO) < 0) remaining = BigDecimal.ZERO;
+            throw new BankingOperationException(
+                "24-Hour ATM withdrawal limit of ₹" + String.format("%,.2f", maxDaily) + " exceeded! Total withdrawn in last 24 hours: ₹" + 
+                String.format("%,.2f", existing24hWithdrawals) + ". Remaining limit today: ₹" + String.format("%,.2f", remaining)
+            );
+        }
+
         if (debitCard != null) {
             if (debitCard.getStatus() != CardStatus.ACTIVE) {
                 throw new BankingOperationException("ATM Card is " + debitCard.getStatus() + ". Only active cards can be used for withdrawals.");
-            }
-            if (debitCard.getDailyLimit() != null && req.getAmount().compareTo(debitCard.getDailyLimit()) > 0) {
-                throw new BankingOperationException("Amount exceeds daily ATM withdrawal limit of ₹" + debitCard.getDailyLimit());
             }
             if (debitCard.getPinHash() != null) {
                 if (!passwordEncoder.matches(pin, debitCard.getPinHash())) {
@@ -230,6 +274,25 @@ public class TransactionService {
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new AccountSuspendedException("Cannot withdraw from account with status: " + account.getStatus());
+        }
+
+        BigDecimal maxPerTxn = BigDecimal.valueOf(200000);
+        if (req.getAmount().compareTo(maxPerTxn) > 0) {
+            throw new BankingOperationException("Cashier counter withdrawal cannot exceed ₹2,00,000 per transaction!");
+        }
+
+        LocalDateTime twentyFourHoursAgo = LocalDateTime.now().minusHours(24);
+        BigDecimal existing24hWithdrawals = transactionRepository.sumWithdrawalsForAccountSince(account.getId(), twentyFourHoursAgo);
+        BigDecimal maxDaily = BigDecimal.valueOf(500000);
+
+        if (existing24hWithdrawals.add(req.getAmount()).compareTo(maxDaily) > 0) {
+            BigDecimal remaining = maxDaily.subtract(existing24hWithdrawals);
+            if (remaining.compareTo(BigDecimal.ZERO) < 0) remaining = BigDecimal.ZERO;
+            throw new BankingOperationException(
+                "24-Hour cashier counter withdrawal restriction of ₹5,00,000 exceeded for account " + account.getAccountNumber() + 
+                "! Total withdrawn at counter in last 24 hours: ₹" + String.format("%,.2f", existing24hWithdrawals) + 
+                ". Remaining limit: ₹" + String.format("%,.2f", remaining)
+            );
         }
 
         // Check Balance

@@ -165,6 +165,22 @@ public class VASService {
         MobileOperator operator = mobileOperatorRepository.findById(req.getOperatorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Mobile Operator not found with ID: " + req.getOperatorId()));
 
+        // Validate plan amount against carrier packs
+        List<MobileRechargePlan> operatorPlans = mobileRechargePlanRepository.findAllByOperator_Id(operator.getId());
+        Optional<MobileRechargePlan> matchingPlanOpt = operatorPlans.stream()
+                .filter(p -> p.getAmount().compareTo(req.getAmount()) == 0)
+                .findFirst();
+
+        if (matchingPlanOpt.isEmpty() && !operatorPlans.isEmpty()) {
+            throw new BankingOperationException(
+                "Invalid recharge amount ₹" + String.format("%,.2f", req.getAmount()) + 
+                " for " + operator.getName() + "! Please select an official carrier plan (e.g. ₹299, ₹719, ₹2,999)."
+            );
+        }
+
+        String finalPlanName = matchingPlanOpt.map(MobileRechargePlan::getPlanName)
+                .orElse(req.getPlanName() != null && !req.getPlanName().isEmpty() ? req.getPlanName() : "Prepaid Recharge Pack");
+
         // Validate PIN
         authService.validateCustomerPin(customer, req.getTransactionPin());
 
@@ -191,7 +207,7 @@ public class VASService {
                 .amount(req.getAmount())
                 .balanceAfter(newBalance)
                 .senderBalanceAfter(newBalance)
-                .description("Mobile Recharge for " + req.getMobileNumber() + " (" + operator.getName() + " - " + req.getPlanName() + ")")
+                .description("Mobile Recharge for " + req.getMobileNumber() + " (" + operator.getName() + " - " + finalPlanName + ")")
                 .status(TransactionStatus.SUCCESS)
                 .build();
         transactionRepository.save(txn);
@@ -202,7 +218,7 @@ public class VASService {
                 .account(account)
                 .mobileNumber(req.getMobileNumber())
                 .operator(operator)
-                .planName(req.getPlanName())
+                .planName(finalPlanName)
                 .amount(req.getAmount())
                 .transactionRef(txnRef)
                 .status("SUCCESS")
@@ -211,17 +227,17 @@ public class VASService {
 
         auditLogService.logAction(customer.getUser().getId(), username, "ROLE_CUSTOMER", "MOBILE_RECHARGE",
                 "MobileRecharge", txnRef, ipAddress, "SUCCESS",
-                "Recharged " + req.getMobileNumber() + " (" + operator.getName() + ") for ₹" + req.getAmount());
+                "Recharged " + req.getMobileNumber() + " (" + operator.getName() + " - " + finalPlanName + ") for ₹" + req.getAmount());
 
         notificationService.createNotification(customer, "Mobile Recharge Successful",
-                "Recharge of ₹" + req.getAmount() + " for mobile " + req.getMobileNumber() + " (" + operator.getName() + ") completed successfully! (Ref: " + txnRef + ")",
+                "Recharge of ₹" + req.getAmount() + " (" + finalPlanName + ") for mobile " + req.getMobileNumber() + " (" + operator.getName() + ") completed successfully! (Ref: " + txnRef + ")",
                 NotificationType.VAS_RECHARGE);
 
         return RechargeResponse.builder()
                 .transactionRef(txnRef)
                 .mobileNumber(req.getMobileNumber())
                 .operatorName(operator.getName())
-                .planName(req.getPlanName())
+                .planName(finalPlanName)
                 .amount(req.getAmount())
                 .status("SUCCESS")
                 .timestamp(recharge.getCreatedAt())
@@ -331,9 +347,42 @@ public class VASService {
     }
 
     @Transactional
+    public Show getOrCreateShow(Long showId) {
+        if (showId != null) {
+            Optional<Show> sOpt = showRepository.findById(showId);
+            if (sOpt.isPresent()) return sOpt.get();
+        }
+
+        List<Show> shows = showRepository.findAll();
+        if (!shows.isEmpty()) return shows.get(0);
+
+        List<Movie> movies = movieRepository.findAll();
+        Movie movie = movies.isEmpty() ? movieRepository.save(Movie.builder()
+                .title("Kalki 2898 AD").genre("Action / Sci-Fi").durationMinutes(180).language("Telugu / Hindi")
+                .posterUrl("https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500").rating(8.9).releaseDate(LocalDate.now()).build()) : movies.get(0);
+
+        List<Screen> screens = screenRepository.findAll();
+        Screen screen;
+        if (screens.isEmpty()) {
+            Location defaultLoc = locationRepository.save(Location.builder().cityName("Hyderabad").stateName("Telangana").build());
+            Theatre defaultTheatre = theatreRepository.save(Theatre.builder().location(defaultLoc).name("PVR ICON Cinemas").address("City Center Mall").build());
+            screen = screenRepository.save(Screen.builder().theatre(defaultTheatre).screenName("Audi 1 (Dolby Atmos)").totalRows(6).totalCols(10).build());
+        } else {
+            screen = screens.get(0);
+        }
+
+        return showRepository.save(Show.builder()
+                .screen(screen)
+                .movie(movie)
+                .showDate(LocalDate.now())
+                .showTime(LocalTime.of(18, 30))
+                .ticketPrice(BigDecimal.valueOf(350.00))
+                .build());
+    }
+
+    @Transactional
     public SeatLayoutResponse getSeatLayout(Long showId) {
-        Show show = showRepository.findById(showId)
-                .orElseThrow(() -> new ResourceNotFoundException("Show not found with ID: " + showId));
+        Show show = getOrCreateShow(showId);
 
         Screen screen = show.getScreen();
         List<Seat> allSeats = seatRepository.findAllByScreen_IdOrderByRowLabelAscColNumberAsc(screen.getId());
@@ -355,10 +404,12 @@ public class VASService {
             allSeats = seatRepository.saveAll(seats);
         }
 
-        List<MovieBookingSeat> bookedSeats = movieBookingSeatRepository.findAllByBooking_Show_IdAndBooking_Status(showId, BookingStatus.CONFIRMED);
+        List<MovieBookingSeat> bookedSeats = movieBookingSeatRepository.findAllByBooking_Show_IdAndBooking_Status(show.getId(), BookingStatus.CONFIRMED);
         Set<Long> bookedSeatIds = bookedSeats.stream().map(bs -> bs.getSeat().getId()).collect(Collectors.toSet());
 
-        List<SeatLayoutResponse.SeatDetail> seatDetails = allSeats.stream().map(seat -> {
+        List<SeatLayoutResponse.SeatDetail> seatDetails = new ArrayList<>();
+        for (int i = 0; i < allSeats.size(); i++) {
+            Seat seat = allSeats.get(i);
             BigDecimal price = show.getTicketPrice();
             if (seat.getSeatType() == SeatType.PREMIUM) {
                 price = price.add(BigDecimal.valueOf(100.00));
@@ -366,16 +417,16 @@ public class VASService {
                 price = price.add(BigDecimal.valueOf(200.00));
             }
 
-            return SeatLayoutResponse.SeatDetail.builder()
-                    .seatId(seat.getId())
+            seatDetails.add(SeatLayoutResponse.SeatDetail.builder()
+                    .seatId((long) (i + 1))
                     .rowLabel(seat.getRowLabel())
                     .colNumber(seat.getColNumber())
                     .seatCode(seat.getSeatCode() != null ? seat.getSeatCode() : (seat.getRowLabel() + seat.getColNumber()))
                     .seatType(seat.getSeatType().name())
                     .price(price)
                     .isBooked(bookedSeatIds.contains(seat.getId()))
-                    .build();
-        }).collect(Collectors.toList());
+                    .build());
+        }
 
         return SeatLayoutResponse.builder()
                 .showId(show.getId())
@@ -399,15 +450,7 @@ public class VASService {
             throw new BankingOperationException("Access Denied: You do not own this account");
         }
 
-        Show show = showRepository.findById(req.getShowId()).orElse(null);
-        if (show == null) {
-            List<Show> availableShows = showRepository.findAll();
-            if (!availableShows.isEmpty()) {
-                show = availableShows.get(0);
-            } else {
-                throw new ResourceNotFoundException("Show not found with ID: " + req.getShowId());
-            }
-        }
+        Show show = getOrCreateShow(req.getShowId());
 
         // Validate PIN
         authService.validateCustomerPin(customer, req.getTransactionPin());
@@ -424,35 +467,35 @@ public class VASService {
 
         for (Long seatId : req.getSeatIds()) {
             Seat seat = seatRepository.findById(seatId).orElse(null);
-            if (seat == null) {
-                if (!screenSeats.isEmpty()) {
-                    seat = screenSeats.get((int) (Math.abs(seatId) % screenSeats.size()));
+            if (seat == null && !screenSeats.isEmpty()) {
+                // Try finding in screenSeats by ID or index
+                Optional<Seat> matchOpt = screenSeats.stream().filter(s -> s.getId().equals(seatId)).findFirst();
+                if (matchOpt.isPresent()) {
+                    seat = matchOpt.get();
                 } else {
-                    seat = seatRepository.save(Seat.builder()
-                            .screen(show.getScreen())
-                            .rowLabel("A")
-                            .colNumber(1)
-                            .seatType(SeatType.STANDARD)
-                            .build());
+                    int seatIdx = (int) Math.abs((seatId - 1) % screenSeats.size());
+                    seat = screenSeats.get(seatIdx);
                 }
             }
 
-            if (bookedSeatIds.contains(seat.getId())) {
-                String label = seat.getSeatCode() != null ? seat.getSeatCode() : (seat.getRowLabel() + seat.getColNumber());
-                throw new BankingOperationException("Seat " + label + " has already been booked by another customer! Please choose other available seats.");
+            if (seat != null) {
+                if (bookedSeatIds.contains(seat.getId())) {
+                    String label = seat.getSeatCode() != null ? seat.getSeatCode() : (seat.getRowLabel() + seat.getColNumber());
+                    throw new BankingOperationException("Seat " + label + " has already been booked by another customer! Please choose other available seats.");
+                }
+
+                if (seatsToBook.contains(seat)) {
+                    continue;
+                }
+
+                BigDecimal price = show.getTicketPrice();
+                if (seat.getSeatType() == SeatType.PREMIUM) price = price.add(BigDecimal.valueOf(100.00));
+                else if (seat.getSeatType() == SeatType.RECLINER) price = price.add(BigDecimal.valueOf(200.00));
+
+                totalAmount = totalAmount.add(price);
+                seatCodes.add(seat.getSeatCode() != null ? seat.getSeatCode() : (seat.getRowLabel() + seat.getColNumber()));
+                seatsToBook.add(seat);
             }
-
-            if (seatsToBook.contains(seat)) {
-                continue;
-            }
-
-            BigDecimal price = show.getTicketPrice();
-            if (seat.getSeatType() == SeatType.PREMIUM) price = price.add(BigDecimal.valueOf(100.00));
-            else if (seat.getSeatType() == SeatType.RECLINER) price = price.add(BigDecimal.valueOf(200.00));
-
-            totalAmount = totalAmount.add(price);
-            seatCodes.add(seat.getSeatCode() != null ? seat.getSeatCode() : (seat.getRowLabel() + seat.getColNumber()));
-            seatsToBook.add(seat);
         }
 
         // Validate Balance

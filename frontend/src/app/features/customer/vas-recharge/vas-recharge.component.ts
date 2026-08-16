@@ -75,15 +75,28 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
               <label class="bank-label">Amount (₹) *</label>
               <div class="relative">
                 <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-bold text-slate-400 pointer-events-none">₹</span>
-                <input [(ngModel)]="selectedPlanAmount" name="amount" required type="number" 
-                       placeholder="0.00" class="bank-input bank-input-with-currency pl-10 text-lg font-extrabold text-slate-900 font-display" />
+                <input [ngModel]="selectedPlanAmount" (ngModelChange)="onAmountChange($event)" name="amount" required type="number" 
+                       placeholder="e.g. 299" class="bank-input bank-input-with-currency pl-10 text-lg font-extrabold text-slate-900 font-display"
+                       [ngClass]="(selectedPlanAmount && selectedPlanAmount > 0 && !isValidPlanAmount()) ? 'border-rose-500 bg-rose-50/30 focus:ring-rose-400' : ''" />
               </div>
-              <p *ngIf="selectedPlanName" class="text-[11px] text-amber-700 font-bold mt-1">
-                Plan: {{ selectedPlanName }}
-              </p>
+
+              <!-- Matched Plan Display Badge -->
+              <div *ngIf="selectedPlanName" class="mt-1.5 p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center justify-between animate-fade-in">
+                <span class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                  <span>Matched Pack: {{ selectedPlanName }}</span>
+                </span>
+                <span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full uppercase font-mono">MATCHED</span>
+              </div>
+
+              <!-- Instant Warning for Invalid Non-Existent Pack Amount -->
+              <div *ngIf="selectedPlanAmount && selectedPlanAmount > 0 && !isValidPlanAmount()" class="mt-1.5 p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-1.5 animate-fade-in">
+                <i class="fa-solid fa-circle-exclamation text-rose-600"></i>
+                <span>No valid {{ selectedOperator?.name || 'carrier' }} pack for ₹{{ selectedPlanAmount }}. Please select an official pack (e.g. ₹299, ₹719, ₹2999).</span>
+              </div>
             </div>
 
-            <button type="submit" [disabled]="!selectedAccount || !mobileNumber || !selectedOperator || !selectedPlanAmount" 
+            <button type="submit" [disabled]="!canSubmit()" 
                     class="bank-btn-primary w-full py-2.5 text-xs font-bold rounded-xl mt-1 cursor-pointer">
               <i class="fa-solid fa-bolt"></i> Recharge Now →
             </button>
@@ -109,7 +122,7 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
             <div *ngFor="let p of plans()" 
                  (click)="choosePlan(p)"
                  class="p-3.5 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-400 cursor-pointer flex flex-col justify-between transition-all group shadow-2xs"
-                 [ngClass]="selectedPlanAmount === p.amount ? 'border-amber-500 bg-amber-50 shadow-2xs' : ''">
+                 [ngClass]="(selectedPlanAmount && Number(selectedPlanAmount) === Number(p.amount)) ? 'border-amber-500 bg-amber-50 shadow-md ring-2 ring-amber-400/40' : ''">
               <div>
                 <div class="flex justify-between items-start mb-1.5">
                   <span class="text-base font-extrabold text-slate-900 font-mono">{{ p.amount | inrCurrency }}</span>
@@ -182,6 +195,8 @@ export class VasRechargeComponent {
   private accountService = inject(AccountService);
   private toastService = inject(ToastService);
 
+  Number = Number;
+
   accounts = signal<Account[]>([]);
   operators = signal<MobileOperator[]>([]);
   plans = signal<MobileRechargePlan[]>([]);
@@ -219,7 +234,12 @@ export class VasRechargeComponent {
     this.selectedOperator = op;
     this.vasService.getPlans(op.id).subscribe({
       next: (res) => {
-        if (res.success && res.data) this.plans.set(res.data);
+        if (res.success && res.data) {
+          this.plans.set(res.data);
+          if (this.selectedPlanAmount) {
+            this.onAmountChange(this.selectedPlanAmount);
+          }
+        }
       }
     });
   }
@@ -229,9 +249,40 @@ export class VasRechargeComponent {
     this.selectedPlanName = p.planName;
   }
 
+  onAmountChange(val: any) {
+    const num = val !== null && val !== undefined && val !== '' ? Number(val) : null;
+    this.selectedPlanAmount = num;
+    if (num && num > 0 && this.plans().length > 0) {
+      const match = this.plans().find(p => Number(p.amount) === num);
+      if (match) {
+        this.selectedPlanName = match.planName;
+      } else {
+        this.selectedPlanName = '';
+      }
+    } else {
+      this.selectedPlanName = '';
+    }
+  }
+
+  isValidPlanAmount(): boolean {
+    if (!this.selectedPlanAmount || this.selectedPlanAmount <= 0) return false;
+    if (this.plans().length === 0) return true;
+    return this.plans().some(p => Number(p.amount) === Number(this.selectedPlanAmount));
+  }
+
+  canSubmit(): boolean {
+    return !!this.selectedAccount && 
+           !!this.mobileNumber && 
+           this.mobileNumber.trim().length === 10 && 
+           !!this.selectedOperator && 
+           !!this.selectedPlanAmount && 
+           this.selectedPlanAmount > 0 && 
+           this.isValidPlanAmount();
+  }
+
   initiateRecharge() {
-    if (!this.selectedAccount || !this.mobileNumber || !this.selectedOperator || !this.selectedPlanAmount) return;
-    if (this.selectedPlanAmount > this.selectedAccount.balance) {
+    if (!this.canSubmit()) return;
+    if (this.selectedAccount && this.selectedPlanAmount && this.selectedPlanAmount > this.selectedAccount.balance) {
       this.toastService.error('Insufficient account balance!');
       return;
     }

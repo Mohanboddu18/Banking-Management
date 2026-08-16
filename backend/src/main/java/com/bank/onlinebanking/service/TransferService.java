@@ -78,7 +78,28 @@ public class TransferService {
         Account lockedSender = firstLock.getId().equals(senderAccount.getId()) ? firstLock : secondLock;
         Account lockedReceiver = firstLock.getId().equals(receiverAccount.getId()) ? firstLock : secondLock;
 
-        // 6. Balance Verification
+        // 6. Limits & Balance Verification
+        BigDecimal maxPerTxn = BigDecimal.valueOf(100000);
+        if (req.getAmount().compareTo(maxPerTxn) > 0) {
+            throw new BankingOperationException("Single P2P fund transfer cannot exceed ₹1,00,000 (1 Lakh) per transaction!");
+        }
+
+        java.time.LocalDateTime twentyFourHoursAgo = java.time.LocalDateTime.now().minusHours(24);
+        BigDecimal existing24hTransfers = transactionRepository.sumTransfersForAccountSince(lockedSender.getId(), twentyFourHoursAgo);
+        BigDecimal dailyLimit = lockedSender.getAccountType() != null && lockedSender.getAccountType().getDailyTransferLimit() != null
+                ? lockedSender.getAccountType().getDailyTransferLimit()
+                : BigDecimal.valueOf(100000);
+
+        if (existing24hTransfers.add(req.getAmount()).compareTo(dailyLimit) > 0) {
+            BigDecimal remaining = dailyLimit.subtract(existing24hTransfers);
+            if (remaining.compareTo(BigDecimal.ZERO) < 0) remaining = BigDecimal.ZERO;
+            throw new BankingOperationException(
+                "24-Hour daily transfer limit of ₹" + String.format("%,.2f", dailyLimit) + " exceeded for account " + lockedSender.getAccountNumber() + 
+                "! Total transferred in last 24 hours: ₹" + String.format("%,.2f", existing24hTransfers) + 
+                ". Remaining limit today: ₹" + String.format("%,.2f", remaining)
+            );
+        }
+
         if (lockedSender.getBalance().compareTo(req.getAmount()) < 0) {
             throw new InsufficientBalanceException("Insufficient funds! Your available balance is ₹" + lockedSender.getBalance());
         }

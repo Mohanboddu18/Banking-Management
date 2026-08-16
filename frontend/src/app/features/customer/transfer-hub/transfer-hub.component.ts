@@ -125,10 +125,27 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
             <!-- Amount Input & Quick Chips -->
             <div>
               <label class="bank-label">Amount (₹) *</label>
+              
+              <!-- Transaction Limit Badge Info -->
+              <div class="mb-2 p-2 rounded-lg bg-amber-50/80 border border-amber-200/70 text-[11px] text-amber-950 flex items-center justify-between font-medium">
+                <span class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-shield-check text-amber-600"></i>
+                  <span>Per-Txn Max: ₹1,00,000 • 24H Account Limit Applies</span>
+                </span>
+                <span class="font-bold font-mono text-[10px] text-amber-900 uppercase">24H RESTRICTED</span>
+              </div>
+
               <div class="relative">
                 <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-bold text-slate-400 pointer-events-none">₹</span>
                 <input [(ngModel)]="amount" name="amount" required type="number" min="1" step="0.01"
-                       placeholder="0.00" class="bank-input bank-input-with-currency pl-10 text-lg font-extrabold text-slate-900 font-display" />
+                       placeholder="0.00" class="bank-input bank-input-with-currency pl-10 text-lg font-extrabold text-slate-900 font-display"
+                       [ngClass]="(amount && amount > 100000) ? 'border-rose-500 bg-rose-50/30 focus:ring-rose-400' : ''" />
+              </div>
+
+              <!-- Instant Validation Warning -->
+              <div *ngIf="amount && amount > 100000" class="mt-1.5 text-xs text-rose-600 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>Amount exceeds maximum per-transaction transfer limit of ₹1,00,000 (1 Lakh)!</span>
               </div>
 
               <!-- Quick Amount Pills -->
@@ -397,7 +414,7 @@ export class TransferHubComponent {
   }
 
   canSubmit(): boolean {
-    return !!this.selectedAccount && !!this.receiverAccount && !!this.receiverIfsc && !!this.amount && this.amount > 0;
+    return !!this.selectedAccount && !!this.receiverAccount && !!this.receiverIfsc && !!this.amount && this.amount > 0 && this.amount <= 100000;
   }
 
   initiateTransfer() {

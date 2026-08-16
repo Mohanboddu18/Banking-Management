@@ -126,57 +126,50 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
             <div class="text-[10px] tracking-widest text-slate-500 uppercase font-bold">Cinema Screen (This Way Up)</div>
           </div>
 
-          <!-- Seat Grid Matrix -->
-          <div class="max-w-lg mx-auto space-y-2.5">
-            <div *ngFor="let row of getRowLabels()" class="flex items-center justify-center gap-2">
-              <span class="w-5 text-center font-bold text-[10px] text-slate-500 font-mono">{{ row }}</span>
+          <!-- Seat Grid Matrix (BookMyShow Style Layout) -->
+          <div class="max-w-xl mx-auto space-y-2.5">
+            <div *ngFor="let row of getRowLabels()" class="flex items-center justify-center gap-3">
+              <span class="w-5 text-center font-bold text-[11px] text-slate-400 font-mono">{{ row }}</span>
               
+              <!-- Seat Buttons Grouped by Category -->
               <div class="flex gap-1.5">
                 <button *ngFor="let seat of getSeatsForRow(row)" 
                         (click)="toggleSeat(seat)"
                         [disabled]="seat.isBooked"
-                        [title]="seat.seatCode + ' - ' + seat.seatType + ' (' + (seat.price | inrCurrency) + ')' + (seat.isBooked ? ' [BOOKED & UNAVAILABLE]' : ' [AVAILABLE]')"
-                        class="w-8 h-8 rounded-md text-[10px] font-bold transition-all flex items-center justify-center cursor-pointer shadow-2xs relative"
+                        [title]="seat.isBooked ? ('Seat ' + seat.seatCode + ' - Sold / Unavailable') : ('Seat ' + seat.seatCode + ' - ' + seat.seatType + ' (' + (seat.price | inrCurrency) + ')')"
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-[11px] font-bold transition-all flex items-center justify-center relative select-none"
                         [ngClass]="{
-                          'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 opacity-75': seat.isBooked,
-                          'bg-amber-500 text-slate-950 border border-amber-500 shadow-xs font-extrabold scale-105 ring-2 ring-amber-300': isSeatSelected(seat),
-                          'bg-white hover:bg-amber-50 text-slate-800 border border-slate-300': !seat.isBooked && !isSeatSelected(seat) && seat.seatType === 'STANDARD',
-                          'bg-white hover:bg-amber-50 text-amber-700 border border-amber-400': !seat.isBooked && !isSeatSelected(seat) && seat.seatType === 'PREMIUM',
-                          'bg-white hover:bg-purple-50 text-purple-700 border border-purple-400': !seat.isBooked && !isSeatSelected(seat) && seat.seatType === 'RECLINER'
+                          'seat-sold bg-slate-300 text-slate-400 cursor-not-allowed pointer-events-none border-none opacity-60': seat.isBooked,
+                          'bg-emerald-500 border-2 border-emerald-600 text-white font-extrabold scale-105 shadow-sm cursor-pointer': isSeatSelected(seat),
+                          'bg-white border-2 border-emerald-500 text-emerald-700 hover:bg-emerald-50 cursor-pointer': !seat.isBooked && !isSeatSelected(seat) && seat.seatType === 'STANDARD',
+                          'bg-white border-2 border-amber-400 text-amber-700 hover:bg-amber-50 cursor-pointer': !seat.isBooked && !isSeatSelected(seat) && seat.seatType === 'PREMIUM',
+                          'bg-white border-2 border-purple-400 text-purple-700 hover:bg-purple-50 cursor-pointer': !seat.isBooked && !isSeatSelected(seat) && seat.seatType === 'RECLINER'
                         }">
-                  <i *ngIf="seat.isBooked" class="fa-solid fa-lock text-[9px] text-slate-400"></i>
-                  <span *ngIf="!seat.isBooked && !isSeatSelected(seat)">{{ seat.colNumber }}</span>
-                  <i *ngIf="isSeatSelected(seat)" class="fa-solid fa-check text-[9px]"></i>
+                  <span>{{ seat.colNumber }}</span>
                 </button>
               </div>
 
-              <span class="w-5 text-center font-bold text-[10px] text-slate-500 font-mono">{{ row }}</span>
+              <span class="w-5 text-center font-bold text-[11px] text-slate-400 font-mono">{{ row }}</span>
             </div>
           </div>
 
-          <!-- Legend -->
-          <div class="flex flex-wrap justify-center gap-4 text-[11px] text-slate-600 pt-3 border-t border-slate-100">
+          <!-- BookMyShow Exact Legend -->
+          <div class="flex flex-wrap justify-center items-center gap-5 text-[11px] text-slate-600 pt-4 border-t border-slate-100">
             <div class="flex items-center gap-1.5">
-              <div class="w-3.5 h-3.5 rounded bg-white border border-slate-300"></div>
-              <span>Standard (₹250)</span>
+              <div class="w-4 h-4 rounded-md bg-white border-2 border-emerald-500"></div>
+              <span class="font-medium text-slate-700">Available</span>
             </div>
             <div class="flex items-center gap-1.5">
-              <div class="w-3.5 h-3.5 rounded bg-white border border-amber-400"></div>
-              <span>Premium (₹350)</span>
+              <div class="w-4 h-4 rounded-md bg-slate-200 border border-slate-300"></div>
+              <span class="font-medium text-slate-500">Sold</span>
             </div>
             <div class="flex items-center gap-1.5">
-              <div class="w-3.5 h-3.5 rounded bg-white border border-purple-400"></div>
-              <span>Recliner (₹450)</span>
+              <div class="w-4 h-4 rounded-md bg-white border-2 border-amber-400"></div>
+              <span class="font-medium text-slate-700">Bestseller</span>
             </div>
             <div class="flex items-center gap-1.5">
-              <div class="w-3.5 h-3.5 rounded bg-amber-500"></div>
+              <div class="w-4 h-4 rounded-md bg-emerald-500"></div>
               <span class="font-bold text-slate-900">Selected</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <div class="w-3.5 h-3.5 rounded bg-slate-200 text-slate-400 flex items-center justify-center text-[8px]">
-                <i class="fa-solid fa-lock"></i>
-              </div>
-              <span class="text-slate-500 font-medium">Booked / Unavailable</span>
             </div>
           </div>
 
@@ -461,19 +454,21 @@ export class VasMoviesComponent {
   private generateDefaultSeatLayout(show: ShowItem) {
     const defaultSeats: SeatDetail[] = [];
     const rows = ['A', 'B', 'C', 'D', 'E', 'F'];
+    let seatCounter = 1;
     
     rows.forEach(r => {
-      for (let c = 1; c <= 8; c++) {
+      for (let c = 1; c <= 10; c++) {
         const seatType = (r === 'E' || r === 'F') ? 'RECLINER' : (r === 'C' || r === 'D') ? 'PREMIUM' : 'STANDARD';
         const price = seatType === 'RECLINER' ? 450 : seatType === 'PREMIUM' ? 350 : 250;
+        const isAlreadyBooked = (r === 'B' && (c === 3 || c === 4)) || (r === 'D' && c === 5);
         defaultSeats.push({
-          seatId: parseInt(`${r.charCodeAt(0)}${c}`),
+          seatId: seatCounter++,
           rowLabel: r,
           colNumber: c,
           seatCode: `${r}${c}`,
           seatType: seatType,
           price: price,
-          isBooked: (r === 'B' && (c === 3 || c === 4)) || (r === 'D' && c === 5)
+          isBooked: isAlreadyBooked
         });
       }
     });
@@ -485,7 +480,7 @@ export class VasMoviesComponent {
       screenName: 'Audi 1 (Dolby Atmos)',
       ticketPrice: show.ticketPrice,
       totalRows: 6,
-      totalCols: 8,
+      totalCols: 10,
       seats: defaultSeats
     });
   }
@@ -576,40 +571,11 @@ export class VasMoviesComponent {
         }
       },
       error: (err) => {
-        // Mark locally booked and provide confirmed pass
-        const bookingRef = 'MBK' + Math.floor(100000 + Math.random() * 900000);
-        const pass: MovieBooking = {
-          id: Math.floor(Math.random() * 1000),
-          bookingRef: bookingRef,
-          movieTitle: this.selectedMovie?.title || 'Kalki 2898 AD',
-          language: this.selectedMovie?.language || 'Telugu / Hindi',
-          theatreName: this.seatLayout()?.theatreName || 'PVR ICON Cinemas',
-          cityName: 'Hyderabad',
-          screenName: this.seatLayout()?.screenName || 'Audi 1',
-          showDate: this.selectedShow?.showDate || new Date().toISOString().split('T')[0],
-          showTime: this.selectedShow?.showTime || '06:45 PM',
-          totalSeats: this.selectedSeats().length,
-          seatNumbers: this.getSelectedSeatCodes(),
-          totalAmount: this.calculateTotal(),
-          transactionRef: 'TXN' + Math.floor(10000000 + Math.random() * 90000000),
-          status: 'CONFIRMED',
-          bookingTime: new Date().toISOString()
-        };
-        this.ticketPass.set(pass);
-        this.toastService.success('Movie tickets booked successfully!');
-
-        // Update layout locally so seats become booked & locked
-        const currentLayout = this.seatLayout();
-        if (currentLayout) {
-          const updatedSeats = currentLayout.seats.map(s => {
-            if (bookedSeatIds.includes(s.seatId)) {
-              return { ...s, isBooked: true };
-            }
-            return s;
-          });
-          this.seatLayout.set({ ...currentLayout, seats: updatedSeats });
+        const errorMsg = err.error?.message || err.error?.error || 'Failed to book movie tickets. Please try again.';
+        this.toastService.error(errorMsg);
+        if (this.selectedShow) {
+          this.selectShow(this.selectedShow);
         }
-        this.selectedSeats.set([]);
       }
     });
   }

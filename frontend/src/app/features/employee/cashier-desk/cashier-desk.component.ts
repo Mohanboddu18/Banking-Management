@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Account, Transaction } from '../../../core/models/models';
@@ -73,12 +74,12 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
 
         <!-- Mode Buttons -->
         <div class="grid grid-cols-2 gap-3">
-          <button type="button" (click)="opMode = 'DEPOSIT'" 
+          <button type="button" (click)="setOpMode('DEPOSIT')" 
                   class="p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
                   [ngClass]="opMode === 'DEPOSIT' ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'">
             <i class="fa-solid fa-circle-arrow-down"></i> Cash Deposit
           </button>
-          <button type="button" (click)="opMode = 'WITHDRAW'" 
+          <button type="button" (click)="setOpMode('WITHDRAW')" 
                   class="p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
                   [ngClass]="opMode === 'WITHDRAW' ? 'bg-rose-600 border-rose-600 text-white shadow-xs' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'">
             <i class="fa-solid fa-circle-arrow-up"></i> Cash Withdrawal
@@ -88,11 +89,32 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
         <form (ngSubmit)="processCounterTxn()" class="space-y-4 text-xs">
           <div>
             <label class="bank-label">Amount (₹) *</label>
+
+            <!-- Teller Counter Limit Info Badge -->
+            <div class="mb-2 p-2 rounded-lg bg-amber-50/80 border border-amber-200/70 text-[11px] text-amber-950 flex items-center justify-between font-medium">
+              <span class="flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-check text-amber-600"></i>
+                <span>{{ opMode === 'DEPOSIT' ? 'Counter Deposit Max: ₹5,00,000 • 24H Account Limit: ₹10,00,000' : 'Counter Withdrawal Max: ₹2,00,000 • 24H Account Limit: ₹5,00,000' }}</span>
+              </span>
+              <span class="font-bold font-mono text-[10px] text-amber-900 uppercase">TELLER RESTRICTED</span>
+            </div>
+
             <div class="relative">
               <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-bold text-slate-400 pointer-events-none">₹</span>
               <input [(ngModel)]="amount" name="amt" required type="number" min="10" placeholder="0.00" 
                      class="bank-input bank-input-with-currency pl-10 text-lg font-extrabold font-display" 
-                     [ngClass]="opMode === 'DEPOSIT' ? 'text-emerald-700' : 'text-rose-700'" />
+                     [ngClass]="((opMode === 'DEPOSIT' && amount && amount > 500000) || (opMode === 'WITHDRAW' && amount && amount > 200000)) ? 'border-rose-500 bg-rose-50/30 focus:ring-rose-400' : (opMode === 'DEPOSIT' ? 'text-emerald-700' : 'text-rose-700')" />
+            </div>
+
+            <!-- Instant Teller Warning -->
+            <div *ngIf="opMode === 'DEPOSIT' && amount && amount > 500000" class="mt-1.5 text-xs text-rose-600 font-bold flex items-center gap-1">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>Amount exceeds maximum per-transaction counter deposit restriction of ₹5,00,000 (5 Lakhs)!</span>
+            </div>
+
+            <div *ngIf="opMode === 'WITHDRAW' && amount && amount > 200000" class="mt-1.5 text-xs text-rose-600 font-bold flex items-center gap-1">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>Amount exceeds maximum per-transaction counter cash withdrawal restriction of ₹2,00,000 (2 Lakhs)!</span>
             </div>
           </div>
 
@@ -110,7 +132,7 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
             <input [(ngModel)]="remarks" name="rem" type="text" placeholder="Counter cash transaction notes" class="bank-input text-xs" />
           </div>
 
-          <button type="submit" [disabled]="!amount || amount <= 0" 
+          <button type="submit" [disabled]="!canSubmit()" 
                   class="w-full py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer shadow-xs"
                   [ngClass]="opMode === 'DEPOSIT' ? 'bank-btn-success' : 'bank-btn-danger'">
             <i class="fa-solid" [ngClass]="opMode === 'DEPOSIT' ? 'fa-check' : 'fa-hand-holding-dollar'"></i>
@@ -125,6 +147,7 @@ import { InrCurrencyPipe } from '../../../shared/pipes/inr-currency.pipe';
 export class CashierDeskComponent {
   private employeeService = inject(EmployeeService);
   private toastService = inject(ToastService);
+  private titleService = inject(Title);
 
   searchQuery = '';
   searchResults = signal<Account[]>([]);
@@ -135,7 +158,29 @@ export class CashierDeskComponent {
   remarks = '';
 
   ngOnInit() {
+    this.updateTitle();
     this.searchAccounts();
+  }
+
+  setOpMode(mode: 'DEPOSIT' | 'WITHDRAW') {
+    this.opMode = mode;
+    this.updateTitle();
+  }
+
+  canSubmit(): boolean {
+    if (!this.selectedAccount || !this.amount || this.amount <= 0) return false;
+    if (this.opMode === 'DEPOSIT' && this.amount > 500000) return false;
+    if (this.opMode === 'WITHDRAW' && this.amount > 200000) return false;
+    if (this.opMode === 'WITHDRAW' && this.selectedAccount && this.amount > this.selectedAccount.balance) return false;
+    return true;
+  }
+
+  updateTitle() {
+    if (this.opMode === 'DEPOSIT') {
+      this.titleService.setTitle('Cashier Deposit Desk — Godavari Bank');
+    } else {
+      this.titleService.setTitle('Cashier Withdrawal Desk — Godavari Bank');
+    }
   }
 
   searchAccounts() {

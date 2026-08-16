@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 import { AccountService } from '../../../core/services/account.service';
 import { TransactionService } from '../../../core/services/transaction.service';
 import { CardService } from '../../../core/services/card.service';
@@ -128,10 +129,39 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
                   Available: <strong class="text-slate-900 font-mono">{{ selectedAccount.balance | inrCurrency }}</strong>
                 </span>
               </div>
+
+              <!-- Transaction Limit Badge Info -->
+              <div class="mb-2 p-2 rounded-lg bg-amber-50/80 border border-amber-200/70 text-[11px] text-amber-950 flex items-center justify-between font-medium">
+                <span class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-shield-check text-amber-600"></i>
+                  <span *ngIf="mode === 'DEPOSIT' && depositChannel === 'ATM_CARD'">ATM Card Deposit Max: ₹2,00,000 • 24H Total Limit: ₹2,00,000</span>
+                  <span *ngIf="mode === 'DEPOSIT' && depositChannel === 'DIRECT'">Direct Cash Deposit Max: ₹5,00,000 • 24H Total Limit: ₹10,00,000</span>
+                  <span *ngIf="mode === 'WITHDRAW'">ATM Withdrawal Max: ₹50,000 • 24H Total Limit: ₹1,00,000</span>
+                </span>
+                <span class="font-bold font-mono text-[10px] text-amber-900 uppercase">24H RESTRICTED</span>
+              </div>
+
               <div class="relative">
                 <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-base font-bold text-slate-400 pointer-events-none">₹</span>
                 <input [(ngModel)]="amount" name="amount" required type="number" min="10" step="10"
-                       placeholder="0.00" class="bank-input bank-input-with-currency pl-10 text-lg font-extrabold text-slate-900 font-display" />
+                       placeholder="0.00" class="bank-input bank-input-with-currency pl-10 text-lg font-extrabold text-slate-900 font-display"
+                       [ngClass]="((mode === 'DEPOSIT' && depositChannel === 'ATM_CARD' && amount && amount > 200000) || (mode === 'DEPOSIT' && depositChannel === 'DIRECT' && amount && amount > 500000) || (mode === 'WITHDRAW' && amount && amount > 50000)) ? 'border-rose-500 bg-rose-50/30 focus:ring-rose-400' : ''" />
+              </div>
+
+              <!-- Instant Validation Warning Message -->
+              <div *ngIf="mode === 'DEPOSIT' && depositChannel === 'ATM_CARD' && amount && amount > 200000" class="mt-1.5 text-xs text-rose-600 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>ATM Debit Card deposit is strictly limited to ₹2,00,000 (2 Lakhs) within 24 Hours!</span>
+              </div>
+
+              <div *ngIf="mode === 'DEPOSIT' && depositChannel === 'DIRECT' && amount && amount > 500000" class="mt-1.5 text-xs text-rose-600 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>Direct cash deposit cannot exceed ₹5,00,000 (5 Lakhs) per transaction!</span>
+              </div>
+
+              <div *ngIf="mode === 'WITHDRAW' && amount && amount > 50000" class="mt-1.5 text-xs text-rose-600 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>Amount exceeds maximum per-transaction ATM withdrawal limit of ₹50,000!</span>
               </div>
 
               <!-- Quick Amount Chips -->
@@ -152,7 +182,7 @@ import { PinModalComponent } from '../../../shared/components/pin-modal/pin-moda
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" [disabled]="!selectedAccount || !amount || amount <= 0" 
+            <button type="submit" [disabled]="!canSubmit()" 
                     class="bank-btn-primary w-full py-2.5 rounded-xl text-xs font-bold mt-2 transition-all cursor-pointer">
               <i class="fa-solid" [ngClass]="mode === 'DEPOSIT' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
               <span>{{ mode === 'DEPOSIT' ? 'Proceed with Cash Deposit' : 'Authorize ATM Cash Withdrawal' }}</span>
@@ -297,6 +327,7 @@ export class DepositWithdrawComponent {
   private transactionService = inject(TransactionService);
   private cardService = inject(CardService);
   private toastService = inject(ToastService);
+  private titleService = inject(Title);
 
   accounts = signal<Account[]>([]);
   debitCards = signal<DebitCard[]>([]);
@@ -322,7 +353,16 @@ export class DepositWithdrawComponent {
   lastTxn = signal<Transaction | null>(null);
 
   ngOnInit() {
+    this.updateTitle();
     this.loadData();
+  }
+
+  updateTitle() {
+    if (this.mode === 'DEPOSIT') {
+      this.titleService.setTitle('Deposit Cash — Godavari Bank');
+    } else {
+      this.titleService.setTitle('Withdraw Cash — Godavari Bank');
+    }
   }
 
   loadData() {
@@ -354,6 +394,7 @@ export class DepositWithdrawComponent {
     this.mode = newMode;
     this.amount = null;
     this.description = '';
+    this.updateTitle();
   }
 
   onAccountChange(acc: Account) {
@@ -374,6 +415,15 @@ export class DepositWithdrawComponent {
       this.cardForm.expiryMonth = card.expiryMonth || 12;
       this.cardForm.expiryYear = card.expiryYear || 2029;
     }
+  }
+
+  canSubmit(): boolean {
+    if (!this.selectedAccount || !this.amount || this.amount <= 0) return false;
+    if (this.mode === 'DEPOSIT' && this.depositChannel === 'ATM_CARD' && this.amount > 200000) return false;
+    if (this.mode === 'DEPOSIT' && this.depositChannel === 'DIRECT' && this.amount > 500000) return false;
+    if (this.mode === 'WITHDRAW' && this.amount > 50000) return false;
+    if (this.mode === 'WITHDRAW' && this.selectedAccount && this.amount > this.selectedAccount.balance) return false;
+    return true;
   }
 
   getFormattedExpiry(): string {

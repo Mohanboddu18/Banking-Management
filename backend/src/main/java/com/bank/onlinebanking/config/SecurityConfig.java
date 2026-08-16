@@ -69,7 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/**", "/actuator/health", "/api/health").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/vas/movies/cities", "/api/vas/movies/shows/**", "/api/vas/recharge/operators").permitAll()
+                        .requestMatchers("/api/vas/movies", "/api/vas/movies/**", "/api/vas/recharge/operators").permitAll()
                         
                         // Manager REST endpoints
                         .requestMatchers("/api/manager/**").hasAnyAuthority("ROLE_MANAGER", "ROLE_ADMIN")
